@@ -1,0 +1,20 @@
+<?php
+
+namespace {{ namespace }};
+
+{{ factoryImport }}
+use Illuminate\Database\Eloquent\Model;
+
+class {{ class }} extends Model
+{
+    {{ factory }}
+    protected $fillable = [
+        //
+    ];
+    protected $guarded = [
+        //
+    ];
+    protected $hidden = [
+
+    ];
+}
