@@ -177,7 +177,9 @@ class AuthService{
      * @param \App\Models\User $user
      * @return array{message: string}
      */
-    public function completeProfile($data, User $user){
+    public function completeProfile($data){
+        $user_id = Auth::user()->id;
+        $user = User::findOrFail($user_id);
         $user->phone_number = $data['phone_number'];
         $user->save();
         return [
