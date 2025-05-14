@@ -8,8 +8,8 @@ Route::get('/', function () {
 });
 
 Route::controller(SocialAuthController::class)->group(function () {
-    Route::get('/login/google/redirect', 'redirectToGoogle');
-    Route::get('/login/google/callback', 'handleGoogleCallback');
+    Route::get('/auth/google/redirect', 'redirectToGoogle');
+    Route::get('/auth/google/callback', 'handleGoogleCallback');
 });
 
 // Route::get('/reset-password/{token}', function ($token) {
