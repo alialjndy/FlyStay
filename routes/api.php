@@ -10,12 +10,13 @@ use Illuminate\Support\Facades\Route;
 
 
 // Public Routes (no authentication required)
-Route::post('/register',[AuthController::class,'register']);
-Route::post('/login',[AuthController::class,'login'])
-    ->name('login')
-    ->middleware(['throttle:6,1']);
-Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
-Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+Route::middleware(['throttle:api'])->group(function(){
+
+    Route::post('/register',[AuthController::class,'register']);
+    Route::post('/login',[AuthController::class,'login']);
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+});
 
 // Protected Routes (requires API authentication)
 Route::middleware('auth:api')->group(function(){
@@ -28,7 +29,7 @@ Route::middleware('auth:api')->group(function(){
 Route::controller(EmailVerificationController::class)->middleware('auth:api')->group(function(){
     // Resend Email Verification Link
     Route::post('/email/verification-notification','resend')
-    ->middleware(['throttle:6,1'])->name('verification.send');
+    ->middleware(['throttle:api'])->name('verification.send');
 
     // Email verification callback route
     Route::get('/email/verify', 'notice')->name('verification.notice');
