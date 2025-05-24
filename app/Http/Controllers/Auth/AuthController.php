@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\PhoneNumberRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Services\Auth\AuthService;
+use App\Services\Auth\AuthService;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
@@ -31,7 +31,7 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request){
         $data = $this->authService->login($request->validated());
-        return $this->success([],$data['code'],$data['message'],$data['status']);
+        return $this->success([$data['token'] ? $data['token'] : null],$data['code'],$data['message'],$data['status']);
     }
     /**
      * Summary of me
