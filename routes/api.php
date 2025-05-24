@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -14,15 +16,19 @@ Route::middleware(['throttle:api'])->group(function(){
 
     Route::post('/register',[AuthController::class,'register']);
     Route::post('/login',[AuthController::class,'login']);
-    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
-    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->middleware('guest');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->middleware('guest');
 });
 
 // Protected Routes (requires API authentication)
 Route::middleware('auth:api')->group(function(){
-    Route::get('/me',[AuthController::class,'me']);
-    Route::post('/logout',[AuthController::class,'logout']);
-    Route::post('complete-profile',[AuthController::class,'completeProfile']);
+    Route::controller(AuthController::class)->group(function(){
+        Route::get('/me','me');
+        Route::post('/logout','logout');
+        Route::post('complete-profile','completeProfile');
+    });
+    Route::resource('permission',PermissionController::class);
+    Route::resource('role',RoleController::class);
 });
 
 //
@@ -44,5 +50,3 @@ Route::controller(SocialAuthController::class)->group(function(){
     Route::get('/auth/google/callback', 'handleGoogleCallback');
 });
 Route::post('/auth/google/login', [AuthController::class, 'loginWithEmail'])->middleware('throttle:5,1');
-
-
