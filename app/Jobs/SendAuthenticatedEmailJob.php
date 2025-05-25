@@ -15,10 +15,10 @@ class SendAuthenticatedEmailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    protected int $user_id ;
-    public function __construct(int $user_id)
+    protected User $user ;
+    public function __construct(User $user)
     {
-        $this->user_id = $user_id;
+        $this->user = $user ;
     }
 
     /**
@@ -26,10 +26,10 @@ class SendAuthenticatedEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $user = User::findOrFail($this->user_id);
-        if ($user && $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail()) {
-            $user->sendEmailVerificationNotification();
-            Log::info("تم إرسال رابط التحقق إلى {$user->email}");
+        // $user = User::findOrFail($this->user);
+        if ($this->user && $this->user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$this->user->hasVerifiedEmail()) {
+            $this->user->sendEmailVerificationNotification();
+            Log::info("تم إرسال رابط التحقق إلى {$this->user->email}");
         } else {
             Log::warning("لم يتم إرسال رابط التحقق. المستخدم غير موجود أو تم التحقق منه مسبقًا.");
         }
