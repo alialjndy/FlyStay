@@ -24,7 +24,8 @@ class AuthService{
     public function register(array $data){
         try{
             $user = User::create($data);
-            SendAuthenticatedEmailJob::dispatch($user->id);
+            $user->sendEmailVerificationNotification();
+            // SendAuthenticatedEmailJob::dispatch($user);
             return [
                 'token'=>JWTAuth::fromUser($user),
                 'message'=>'User registered. Please check your email to verify your account.'
@@ -46,6 +47,7 @@ class AuthService{
                 return [
                     'status' => 'failed',
                     'message' => 'Invalid credentials. Please try again.',
+                    'token'=>null,
                     'code' => 401
                 ];
             }else{
