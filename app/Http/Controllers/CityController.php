@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\City\FilterCityRequest;
 use App\Models\City;
 use Illuminate\Http\Request;
 
@@ -10,8 +11,7 @@ class CityController extends Controller
     /**
      * Display a listing of the resource.
      */
-    #TODO إنشاء فورم ريكويست
-    public function index(Request $request)
+    public function index(FilterCityRequest $request)
     {
         $cities = City::filter($request)->with('country')->paginate(10);
         return self::paginated($cities);
