@@ -10,40 +10,18 @@ class CityController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    #TODO إنشاء فورم ريكويست
+    public function index(Request $request)
     {
-        //
+        $cities = City::filter($request)->with('country')->paginate(10);
+        return self::paginated($cities);
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
     /**
      * Display the specified resource.
      */
     public function show(City $city)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, City $city)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(City $city)
-    {
-        //
+        $city = $city->load('country');
+        return self::success([$city]);
     }
 }

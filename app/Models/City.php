@@ -15,6 +15,16 @@ class City extends Model
         //
     ];
     protected $hidden = [
-
+        'created_at',
+        'updated_at'
     ];
+    public function country(){
+        return $this->belongsTo(Country::class,'country_id');
+    }
+    public function scopeFilter($query,$filters){
+        return $query
+            ->when($filters['name'] ?? null , function($query,$name){
+                $query->where('name','like',"%{$name}%");
+            });
+    }
 }
