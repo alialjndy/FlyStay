@@ -10,17 +10,11 @@ class CountryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    #TODO إنشاء فورم ريكويست
+    public function index(Request $request)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+        $countries = Country::filter($request)->with('cities')->paginate(10);
+        return self::paginated($countries);
     }
 
     /**
@@ -28,22 +22,8 @@ class CountryController extends Controller
      */
     public function show(Country $country)
     {
-        //
+        $country = $country->load('cities');
+        return self::success([$country]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Country $country)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Country $country)
-    {
-        //
-    }
 }
