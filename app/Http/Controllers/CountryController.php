@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Country\FilterCountryRequest;
 use App\Models\Country;
 use Illuminate\Http\Request;
 
@@ -10,8 +11,7 @@ class CountryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    #TODO إنشاء فورم ريكويست
-    public function index(Request $request)
+    public function index(FilterCountryRequest $request)
     {
         $countries = Country::filter($request)->with('cities')->paginate(10);
         return self::paginated($countries);
