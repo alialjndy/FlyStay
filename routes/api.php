@@ -4,8 +4,11 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\CityController;
+use App\Http\Controllers\CountryController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Models\Country;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +32,11 @@ Route::middleware('auth:api')->group(function(){
     });
     Route::resource('permission',PermissionController::class);
     Route::resource('role',RoleController::class);
+    Route::get('/get-all-cities',[CityController::class,'index']);
+    Route::get('/show-city/{city}',[CityController::class,'show']);
+
+    Route::get('get-all-countries',[CountryController::class,'index']);
+    Route::get('show-country/{country}',[CountryController::class,'show']);
 });
 
 //
