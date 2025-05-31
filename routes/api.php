@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\AirportController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\HotelController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Models\Country;
@@ -37,6 +39,11 @@ Route::middleware('auth:api')->group(function(){
 
     Route::get('get-all-countries',[CountryController::class,'index']);
     Route::get('show-country/{country}',[CountryController::class,'show']);
+
+    Route::get('get-all-airports',[AirportController::class,'index']);
+    Route::get('show-airport/{airport}',[AirportController::class,'show']);
+
+    Route::resource('hotel',HotelController::class);
 });
 
 //
