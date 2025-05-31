@@ -12,15 +12,8 @@ class AirportController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+        $airports = Airport::with(['city','country'])->paginate(10);
+        return self::paginated($airports);
     }
 
     /**
@@ -28,22 +21,7 @@ class AirportController extends Controller
      */
     public function show(Airport $airport)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Airport $airport)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Airport $airport)
-    {
-        //
+        $airport = $airport->load(['city','country']);
+        return self::success([$airport]);
     }
 }
