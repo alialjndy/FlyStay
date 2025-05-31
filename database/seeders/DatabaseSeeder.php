@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             CountrySeeder::class,
-            CitySeeder::class,
+            // CitySeeder::class,
         ]);
     }
 }
