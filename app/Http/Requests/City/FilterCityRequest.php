@@ -15,8 +15,7 @@ class FilterCityRequest extends FormRequest
     public function authorize(): bool
     {
         try{
-            $user = JWTAuth::parseToken()->authenticate();
-            return $user ? true : false ;
+            return (bool) JWTAuth::parseToken()->authenticate();
         }catch(Exception $e){
             return false ;
         }
@@ -24,13 +23,6 @@ class FilterCityRequest extends FormRequest
     protected function failedAuthorization(){
         throw new AuthorizationException('you cannot execute this action.');
     }
-    protected function prepareForValidation(){
-        $cleanName = preg_replace('/[^pL\s\-]/u','',$this->name ?? '');
-        $this->merge([
-            'name'=>$cleanName
-        ]);
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -39,7 +31,18 @@ class FilterCityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'nullable|string'
+            'name'=>'nullable|string|max:255'
+        ];
+    }
+    public function attributes(){
+        return [
+            'name'=>'city name'
+        ];
+    }
+    public function messages(){
+        return [
+            'string'    =>'The :attribute field value must be a string',
+            'max'       => 'The :attribute may not be greater than :max characters.',
         ];
     }
 }

@@ -13,7 +13,7 @@ class CityController extends Controller
      */
     public function index(FilterCityRequest $request)
     {
-        $cities = City::filter($request)->with('country')->paginate(10);
+        $cities = City::filter($request->validated())->with(['country','airports','hotels'])->paginate(10);
         return self::paginated($cities);
     }
     /**
@@ -21,7 +21,7 @@ class CityController extends Controller
      */
     public function show(City $city)
     {
-        $city = $city->load('country');
+        $city = $city->load(['country','airports','hotels']);
         return self::success([$city]);
     }
 }

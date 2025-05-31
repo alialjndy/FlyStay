@@ -27,4 +27,10 @@ class City extends Model
                 $query->where('name','like',"%{$name}%");
             });
     }
+    public function airports(){
+        return $this->hasMany(Airport::class,'city_id');
+    }
+    public function hotels(){
+        return $this->hasMany(Hotel::class,'city_id');
+    }
 }

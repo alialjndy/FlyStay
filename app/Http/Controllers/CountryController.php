@@ -13,7 +13,7 @@ class CountryController extends Controller
      */
     public function index(FilterCountryRequest $request)
     {
-        $countries = Country::filter($request)->with('cities')->paginate(10);
+        $countries = Country::filter($request)->with(['cities','cities.airports','cities.hotels'])->paginate(10);
         return self::paginated($countries);
     }
 
@@ -22,7 +22,7 @@ class CountryController extends Controller
      */
     public function show(Country $country)
     {
-        $country = $country->load('cities');
+        $country = $country->load(['cities','cities.airports','cities.hotels']);
         return self::success([$country]);
     }
 

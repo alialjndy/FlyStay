@@ -32,4 +32,20 @@ class Country extends Model
                 $query->where('iso2','like',"%{$iso2}%");
             });
     }
+    public function airports(){
+        return $this->hasManyThrough(
+            Airport::class,
+            City::class,
+            'country_id',
+            'city_id'
+        );
+    }
+    public function hotels(){
+        return $this->hasManyThrough(
+            Hotel::class,
+            City::class,
+            'country_id',
+            'city_id'
+        );
+    }
 }
