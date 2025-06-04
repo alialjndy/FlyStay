@@ -30,7 +30,7 @@ class FilterHotelRequest extends FormRequest
     {
         return [
             'name'        => 'nullable|string|max:255',
-            'city_name'   => 'nullable|string|max:255',
+            'city'   => 'nullable|string|max:255',
             'country'     => 'nullable|string|max:255',
             'rating'      => 'nullable|integer|min:1|max:5'
         ];

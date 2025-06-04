@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Hotel extends Model
 {
-    //
+    use HasFactory ;
     protected $fillable = [
         'name',
         'city_id',
@@ -52,5 +53,11 @@ class Hotel extends Model
                     $q->where('name','like',"%{$country}%");
                 });
             });
+    }
+    public function images(){
+        return $this->morphMany(Image::class,'imageable');
+    }
+    public function rooms(){
+        return $this->hasMany(Room::class,'hotel_id');
     }
 }
