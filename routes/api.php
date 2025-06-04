@@ -8,8 +8,10 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\HotelController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\RoomController;
 use App\Models\Country;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
@@ -43,7 +45,12 @@ Route::middleware('auth:api')->group(function(){
     Route::get('get-all-airports',[AirportController::class,'index']);
     Route::get('show-airport/{airport}',[AirportController::class,'show']);
 
+    Route::put('hotels/{hotel}/update-with-photo',[HotelController::class,'update']);
     Route::resource('hotel',HotelController::class);
+
+    Route::resource('room',RoomController::class);
+    Route::put('rooms/{room}/update-with-photo',[RoomController::class,'update']);
+
 });
 
 //
