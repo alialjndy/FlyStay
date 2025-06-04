@@ -1,0 +1,24 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Room;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class RoomSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        Room::factory()->count(100)->create()->each(
+            function($room){
+                $room->images()->create([
+                    'image_path'=>fake()->imageUrl(640,480,'room',true)
+                ]);
+            }
+        );
+    }
+}
