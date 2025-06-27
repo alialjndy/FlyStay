@@ -2,48 +2,72 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Flight\CreateFlightRequest;
+use App\Http\Requests\Flight\FilterFlightRequest;
+use App\Http\Requests\Flight\UpdateFlightRequest;
 use App\Models\Flight;
+use App\Services\Flight\FlightService;
 use Illuminate\Http\Request;
 
 class FlightController extends Controller
 {
+    protected $flightService ;
+    public function __construct(FlightService $flightService){
+        $this->flightService = $flightService ;
+    }
     /**
-     * Display a listing of the resource.
+     * Display a paginated list of flights with optional filters.
+     * @param \App\Http\Requests\Flight\FilterFlightRequest $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(FilterFlightRequest $request)
     {
-        //
+        $allFlights = $this->flightService->getAllFlights($request->validated());
+        return self::paginated($allFlights);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a new flight in the database.
+     * @param \App\Http\Requests\Flight\CreateFlightRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(CreateFlightRequest $request)
     {
-        //
+        $flight = $this->flightService->createFlight($request->validated());
+        return self::success([$flight]);
     }
 
     /**
-     * Display the specified resource.
+     * Display a specific flight by ID, including related airport data.
+     * @param \App\Models\Flight $flight
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function show(Flight $flight)
     {
-        //
+        $flight = $flight->load(['departureAirport','arrivalAirport']);
+        return self::success([$flight]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update a specific flight with validated data.
+     * @param \App\Http\Requests\Flight\UpdateFlightRequest $request
+     * @param \App\Models\Flight $flight
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Flight $flight)
+    public function update(UpdateFlightRequest $request, Flight $flight)
     {
-        //
+        $updatedFlight = $this->flightService->updateFlight($request->validated(),$flight);
+        return self::success([$updatedFlight]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete a specific flight from the database.
+     * @param \App\Models\Flight $flight
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function destroy(Flight $flight)
     {
-        //
+        $flight->delete();
+        return self::success([null]);
     }
 }

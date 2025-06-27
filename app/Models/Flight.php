@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Flight extends Model
 {
+    use HasFactory ;
     //
     protected $fillable = [
         'airline',
@@ -19,6 +22,29 @@ class Flight extends Model
         //
     ];
     protected $hidden = [
-
+        'created_at',
+        'updated_at'
     ];
+    public function scopeFilter($query , $filters){
+        return $query
+            ->when($filters['old_flights'] ?? null,function($query){
+                $query->where('departure_time','<=',Carbon::now());
+            })
+            ->when($filters['later_flight'] ?? null , function($query){
+                $query->where('departure_time','>=', Carbon::now());
+            })
+            ->when($filters['airline'] ?? null , function($query , $airline){
+                $query->where('airline','LIKE',$airline);
+            })
+            ->when(($filters['from_date'] ?? null) && ($filters['to_date']?? null),function($query) use($filters){
+                $query->whereBetween('departure_time',[$filters['from_date'],$filters['to_date']]);
+            })
+            ;
+    }
+    public function departureAirport(){
+        return $this->belongsTo(Airport::class,'departure_airport_id');
+    }
+    public function arrivalAirport(){
+        return $this->belongsTo(Airport::class,'arrival_airport_id');
+    }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\FlightController;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PermissionController;
@@ -50,6 +51,8 @@ Route::middleware('auth:api')->group(function(){
 
     Route::resource('room',RoomController::class);
     Route::put('rooms/{room}/update-with-photo',[RoomController::class,'update']);
+
+    Route::resource('flight',FlightController::class);
 
 });
 
