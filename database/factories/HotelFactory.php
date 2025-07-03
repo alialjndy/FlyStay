@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-
+use App\Models\City;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,9 +19,9 @@ class HotelFactory extends Factory
     {
         return [
             'name'=>fake()->name(),
-            'city_id'=>rand(1,200),
+            'city_id'=>City::inRandomOrder()->value('id'),
             'rating'=>rand(1,5),
-            'description'=>$this->faker->sentence(),
+            'description'=>$this->faker->paragraph(),
         ];
     }
 }
