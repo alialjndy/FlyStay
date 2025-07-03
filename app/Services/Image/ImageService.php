@@ -12,6 +12,12 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class ImageService{
     protected array $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    /**
+     * Summary of storeMultipleImage
+     * @param array $files
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * @return array<array{message: string, original_name: mixed, path: string, status: string, url: string|array{message: string, original_name: mixed, status: string}>}
+     */
     public function storeMultipleImage(array $files, Model $model){
         $results = [];
         foreach($files as $file){
@@ -30,8 +36,8 @@ class ImageService{
             $fileName = Str::random(32) . '.' . $file->getClientOriginalExtension();
             $filePath = 'Images/' . $fileName;
 
-            Storage::disk('local')->putFileAs('Images', $file, $fileName);
-            $url = Storage::disk('local')->url($filePath);
+            Storage::disk('public')->putFileAs('Images', $file, $fileName);
+            $url = Storage::disk('public')->url($filePath);
 
             $model->images()->create([
                 'image_path'=>$filePath
@@ -47,6 +53,11 @@ class ImageService{
         }
         return $results ;
     }
+    /**
+     * Summary of isSafeImage
+     * @param mixed $file
+     * @return bool
+     */
     private function isSafeImage($file){
         $response = Http::timeout(60)->withHeaders([
             'x-apikey'=>env('VIRUSTOTAL_API_KEY'),
@@ -88,6 +99,11 @@ class ImageService{
             throw new FileException(trans('general.invalidFileType'), 403);
         }
     }
+    /**
+     * Summary of deleteMultipleImages
+     * @param array $imagesId
+     * @return array<array{id: mixed, message: string, path: mixed|array{message: string}>}
+     */
     public function deleteMultipleImages(array $imagesId){
         $results = [] ;
         if(!empty($imagesId)){
@@ -96,7 +112,7 @@ class ImageService{
                 $file_path = $image->image_path ;
 
                 $image->delete();
-                Storage::disk('local')->delete($file_path);
+                Storage::disk('public')->delete($file_path);
                 $results[] = [
                     'id' => $id,
                     'message' => 'Image deleted successfully',
