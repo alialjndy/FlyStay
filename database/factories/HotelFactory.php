@@ -19,9 +19,9 @@ class HotelFactory extends Factory
     {
         return [
             'name'=>fake()->name(),
-            'city_id'=>rand(1,7000),
+            'city_id'=>rand(1,200),
             'rating'=>rand(1,5),
-            'description'=>$this->faker->paragraph(),
+            'description'=>$this->faker->sentence(),
         ];
     }
 }

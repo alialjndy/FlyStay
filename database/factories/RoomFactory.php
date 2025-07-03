@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Hotel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 use function Illuminate\Support\enum_value;
@@ -19,7 +20,7 @@ class RoomFactory extends Factory
     public function definition(): array
     {
         return [
-            'hotel_id'=>rand(1,20),
+            'hotel_id'=>Hotel::inRandomOrder()->value('id') ,
             'room_type'=>$this->faker->randomElement(['Single','Double','Suite']),
             'price_per_night'=>$this->faker->randomFloat(2,5,1000),
             'capacity'=>rand(1,3),

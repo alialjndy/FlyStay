@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
-            // CountrySeeder::class,
             HotelSeeder::class,
             RoomSeeder::class,
             FlightSeeder::class,

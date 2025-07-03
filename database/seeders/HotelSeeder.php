@@ -13,10 +13,12 @@ class HotelSeeder extends Seeder
      */
     public function run(): void
     {
+        $defaultImages = ['default1.jpg', 'default2.jpg', 'default3.jpg','default4.jpg','default5.jpg'];
         Hotel::factory()->count(20)->create()->each(
-            function($hotel){
+            function($hotel) use ($defaultImages){
+                $randomImage = $defaultImages[array_rand($defaultImages)];
                 $hotel->images()->create([
-                    'image_path'=> fake()->imageUrl(640 , 480, 'hotel',true)
+                    'image_path'=> 'Images/' . $randomImage
                 ]);
         });
     }

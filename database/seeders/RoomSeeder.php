@@ -13,10 +13,12 @@ class RoomSeeder extends Seeder
      */
     public function run(): void
     {
+        $defaultImages = ['defaultRoom1.jpg','defaultRoom2.jpg','defaultRoom3.jpg','defaultRoom4.jpg','defaultRoom5.jpg'];
         Room::factory()->count(100)->create()->each(
-            function($room){
+            function($room)use($defaultImages){
+                $randomImage = $defaultImages[array_rand($defaultImages)];
                 $room->images()->create([
-                    'image_path'=>fake()->imageUrl(640,480,'room',true)
+                    'image_path'=>'Images/' .$randomImage
                 ]);
             }
         );
