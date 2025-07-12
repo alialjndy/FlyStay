@@ -66,4 +66,13 @@ class User extends Authenticatable implements JWTSubject , MustVerifyEmail , Can
         $url = 'https://spa.test/reset-password?token=' . $token ;
         $this->notify(new ResetPasswordNotification($url));
     }
+    public function scopeFilterRole($query , $roleName){
+        return
+        $query->when($roleName,function($query , $roleName){
+            $query->whereHas('roles',function ($q) use ($roleName){
+                $q->where('name',$roleName);
+            });
+        });
+    }
+
 }

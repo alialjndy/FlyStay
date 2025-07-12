@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminPermissionController;
 use App\Http\Controllers\AdminRoleController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AirportController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
@@ -37,6 +38,8 @@ Route::middleware('auth:api')->group(function(){
         Route::post('/logout','logout');
         Route::post('complete-profile','completeProfile');
     });
+    Route::resource('user',AdminUserController::class);
+
     Route::resource('permission',PermissionController::class);
     Route::post('assign-permission-to-user',[AdminPermissionController::class,'assignPermissionToUser']);
     Route::post('assign-permission-to-role',[AdminPermissionController::class,'assignPermissionToRole']);

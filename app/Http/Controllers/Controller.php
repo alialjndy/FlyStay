@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 
 abstract class Controller
 {
+    use AuthorizesRequests ;
     /**
      * Summary of success
      * @param array $data
