@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminPermissionController;
+use App\Http\Controllers\AdminRoleController;
 use App\Http\Controllers\AirportController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
@@ -36,7 +38,17 @@ Route::middleware('auth:api')->group(function(){
         Route::post('complete-profile','completeProfile');
     });
     Route::resource('permission',PermissionController::class);
+    Route::post('assign-permission-to-user',[AdminPermissionController::class,'assignPermissionToUser']);
+    Route::post('assign-permission-to-role',[AdminPermissionController::class,'assignPermissionToRole']);
+    Route::post('remove-permission-from-user',[AdminPermissionController::class,'removePermissionFromUser']);
+    Route::post('remove-permission-from-role',[AdminPermissionController::class,'removePermissionFromRole']);
+
+    //
     Route::resource('role',RoleController::class);
+    Route::post('assign-role',[AdminRoleController::class,'assignRoleToUser']);
+    Route::post('remove-role',[AdminRoleController::class,'removeRoleFromUser']);
+
+
     Route::get('/get-all-cities',[CityController::class,'index']);
     Route::get('/show-city/{city}',[CityController::class,'show']);
 
