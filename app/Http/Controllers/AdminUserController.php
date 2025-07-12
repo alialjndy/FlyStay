@@ -5,15 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\FilterAdminUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Services\User\AdminUserService;
 use Illuminate\Http\Request;
 
 class AdminUserController extends Controller
 {
-    protected $service ;
-    public function __construct(AdminUserService $service){
-        $this->service = $service ;
-    }
     /**
      * @param \App\Http\Requests\User\FilterAdminUserRequest $request
      * @return mixed|\Illuminate\Http\JsonResponse
