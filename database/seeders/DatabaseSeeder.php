@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             HotelSeeder::class,
             RoomSeeder::class,
             FlightSeeder::class,
+            FlightCabinSeeder::class,
         ]);
     }
 }

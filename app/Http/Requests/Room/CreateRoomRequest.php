@@ -15,7 +15,7 @@ class CreateRoomRequest extends FormRequest
     public function authorize(): bool
     {
         try{
-            return (bool) JWTAuth::parseToken()->authenticate();
+            return (bool) JWTAuth::parseToken()->authenticate(); #TODO يجب أن يكون الأدمن أو شخص له دور محدد في إنشاء غرفة
         }catch(Exception $e){
             return false ;
         }

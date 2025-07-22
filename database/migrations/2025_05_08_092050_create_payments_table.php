@@ -14,8 +14,12 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->enum('method',['cash','stripe']);
+            $table->string('transaction_id')->nullable()->unique();
+            $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();
             $table->decimal('amount',8,2);
-            $table->date('date');
+            $table->date('date')->useCurrent();
+            $table->enum('status',['pending', 'completed', 'failed', 'refunded'])->default('pending');
 
             // Polymorphic fields
             $table->morphs('payable');

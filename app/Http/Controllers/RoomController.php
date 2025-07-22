@@ -41,7 +41,7 @@ class RoomController extends Controller
     {
         $photos = $uploadImageRequest->file('images');
         $results = $this->roomService->createRoom($request->validated(),$photos);
-        return self::success(['room'=>$results['room'],'photos'=>$results['info']]);
+        return self::success(['room'=>$results['room'],'photos'=>$results['info']],201);
     }
 
     /**

@@ -74,5 +74,16 @@ class User extends Authenticatable implements JWTSubject , MustVerifyEmail , Can
             });
         });
     }
+    // كل الحجوزات
+    public function flightBookings(){
+        return $this->hasMany(FlightBooking::class,'user_id');
+    }
+    // الحجوزات الحالية
+    public function upcommingFlightBookings(){
+        return $this->flightBookings()->whereHas('flightCabin.flight',function($query){
+            $query->where('departure_time','>',now());
+        });
+    }
+
 
 }

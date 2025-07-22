@@ -17,6 +17,7 @@ return new class extends Migration
             $table->enum('class_name',['Economy','Business','First']);
             $table->decimal('price',8,2);
             $table->integer('available_seats')->unsigned();
+            $table->string('note')->nullable();
             $table->timestamps();
         });
     }

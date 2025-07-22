@@ -33,7 +33,7 @@ class RoleController extends Controller
     public function store(CreateRoleRequest $request)
     {
         $role = $this->roleService->create($request->validated());
-        return self::success([$role]);
+        return self::success([$role],201);
     }
 
     /**

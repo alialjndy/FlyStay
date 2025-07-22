@@ -10,6 +10,10 @@ class Payment extends Model
     protected $fillable = [
         'user_id',
         'amount',
+        'method',
+        'transaction_id',
+        'verified_by',
+        'status',
         'date',
     ];
     protected $guarded = [
@@ -23,5 +27,8 @@ class Payment extends Model
             'amount'=>'decimal:2',
             'date'=>'date'
         ];
+    }
+    public function payable(){
+        return $this->morphTo();
     }
 }
