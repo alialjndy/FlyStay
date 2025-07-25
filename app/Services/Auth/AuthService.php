@@ -25,6 +25,7 @@ class AuthService{
         try{
             $user = User::create($data);
             $user->sendEmailVerificationNotification();
+            $user->assignRole('customer');
             // SendAuthenticatedEmailJob::dispatch($user);
             return [
                 'token'=>JWTAuth::fromUser($user),
@@ -97,6 +98,7 @@ class AuthService{
                 'email_verified_at' => now(),
             ]
         );
+        $user->assignRole('customer');
         $token = JWTAuth::fromUser($user);
         return [
             'message' => 'Login successful via Google but you need to complete your proifle informations',
