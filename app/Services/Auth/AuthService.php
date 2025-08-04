@@ -52,10 +52,14 @@ class AuthService{
                     'code' => 401
                 ];
             }else{
+                $token = JWTAuth::attempt($data);
+                $user = JWTAuth::user();
+                $roles = $user->getRoleNames();
                 return [
                     'status' => 'success',
-                    'token' => JWTAuth::attempt($data),
-                    'message' => 'Login successful.',
+                    'token' => $token,
+                    'message' => 'Login successful ',
+                    'roles'=>$roles,
                     'code' => 200,
                 ];
             }

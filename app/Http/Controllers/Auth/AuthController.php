@@ -31,7 +31,8 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request){
         $data = $this->authService->login($request->validated());
-        return $this->success([$data['token'] ? $data['token'] : null],$data['code'],$data['message'],$data['status']);
+        return $data['status'] == 'success' ? self::success(['token'=>$data['token'] ,'roles'=>$data['roles']]) :
+        self::error('Error Occurred','error',400,[$data['message']]);
     }
     /**
      * Summary of me
