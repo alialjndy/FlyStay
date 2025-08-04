@@ -16,11 +16,11 @@ class StripePaymentController extends Controller
     public function __construct(StripePaymentService $service){
         $this->service = $service ;
     }
-    public function createPaymentIntent($type ,$id){
-        $info = $this->service->createIntent( $type ,$id);
+    public function createPaymentIntent($type ,$id ,StripePaymentRequest $request){
+        $info = $this->service->createIntent( $type ,$id ,$request->validated()['user_id'] ?? null);
         return $info['status'] == 'success' ?
             self::success([$info['data']]) :
-            self::error('Error Occurred' ,'error' ,400 ,[$info['message']]);
+            self::error('Error Occurred' ,'error' ,$info['code'] ,[$info['message']]);
     }
     public function handleWebhook(Request $request){
         $message = $this->service->handleWebhook($request);

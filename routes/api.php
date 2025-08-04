@@ -13,6 +13,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\FlightBookingController;
 use App\Http\Controllers\FlightCabinController;
 use App\Http\Controllers\FlightController;
+use App\Http\Controllers\HotelBookingController;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PermissionController;
@@ -78,10 +79,13 @@ Route::middleware('auth:api')->group(function(){
     Route::post('flight-bookings/{flightBooking}/cancel',[FlightBookingController::class,'cancelBooking']);
     // Route::post('flight-bookings/{flightBooking}/paid',[StripePaymentController::class,'createPaymentIntent']);
 
+    Route::resource('hotel-bookings',HotelBookingController::class);
+    Route::post('hotel-bookings/{hotelBooking}/cancel',[HotelBookingController::class,'cancel']);
+
     Route::post('payments/{type}/{id}', [StripePaymentController::class, 'createPaymentIntent']);
-    Route::post('stripe/webhook', [StripePaymentController::class, 'handleWebhook']);
 
 });
+    Route::post('stripe/webhook', [StripePaymentController::class, 'handleWebhook']);
 
 //
 Route::controller(EmailVerificationController::class)->middleware('auth:api')->group(function(){

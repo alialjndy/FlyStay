@@ -44,7 +44,7 @@ class FlightController extends Controller
      */
     public function show(Flight $flight)
     {
-        $flight = $flight->load(['departureAirport','arrivalAirport']);
+        $flight = $flight->load(['departureAirport','arrivalAirport','flightDetails']);
         return self::success([$flight]);
     }
 
@@ -67,6 +67,7 @@ class FlightController extends Controller
      */
     public function destroy(Flight $flight)
     {
+        $this->authorize('delete',$flight);
         $flight->delete();
         return self::success([null]);
     }

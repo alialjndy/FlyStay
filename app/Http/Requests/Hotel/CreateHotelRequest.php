@@ -17,7 +17,7 @@ class CreateHotelRequest extends FormRequest
     {
         try{
             $user = JWTAuth::parseToken()->authenticate();
-            return $user && $user->hasRole('admin');
+            return $user && $user->hasAnyRole(['admin','hotel_agent']);
         }catch(Exception $e){
             return false ;
         }

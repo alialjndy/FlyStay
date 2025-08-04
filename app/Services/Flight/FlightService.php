@@ -11,7 +11,7 @@ class FlightService{
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function getAllFlights(array $filters){
-        return Flight::filter($filters)->with(['departureAirport','arrivalAirport'])->paginate(10);
+        return Flight::filter($filters)->with(['departureAirport','arrivalAirport','flightDetails'])->paginate(10);
     }
     /**
      * Create a new flight using the given data.

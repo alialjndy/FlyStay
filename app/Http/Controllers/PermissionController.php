@@ -21,6 +21,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
+        #TODO تخصيص كل أفعال هذا الملف إلى الأدمن فقط Admin
         $permissions = $this->permissionService->getAllPermissions();
         return self::paginated($permissions,PermissionResource::class);
     }

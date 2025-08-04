@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
-            $table->dateTime('check_in_date'); // Date and time when the hotel stay begins
-            $table->dateTime('check_out_date'); // Date and time when the hotel stay ends
+            $table->date('check_in_date'); // Date and time when the hotel stay begins
+            $table->date('check_out_date'); // Date and time when the hotel stay ends
             $table->dateTime('booking_date'); // Date and time when the booking was made
-            $table->enum('status',['pending','cancelled','complete','failed'])->default('pending');
+            $table->enum('status',['pending','confirmed','complete','cancelled','failed'])->default('pending');
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -52,5 +53,19 @@ class Room extends Model
             ->when($filters['capacity'],function($query , $capacity){
                 $query->where('capacity','=',$capacity);
             });
+    }
+    public function hotelBookings(){
+        return $this->hasMany(HotelBooking::class ,'room_id');
+    }
+    /**
+     * Check if the room is currently available
+     */
+    public function isAvailable(){
+        if(!$this->hotelBookings()->exists()){return true ;}
+
+        $latestActiveBooking = $this->hotelBookings()->whereNotIn('status', ['cancelled', 'failed','complete'])
+            ->latest('check_out_date')->first();
+        //
+        if(!$latestActiveBooking){return true ;}
     }
 }

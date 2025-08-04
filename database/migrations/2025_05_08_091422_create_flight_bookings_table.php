@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('flight_cabins_id')->constrained('flight_cabins')->cascadeOnDelete();
             $table->date('booking_date');
             $table->integer('seat_number')->unsigned();
-            $table->enum('status',['pending','cancelled','complete','failed'])->default('pending');
+            $table->enum('status',['pending','confirmed','complete','cancelled','failed'])->default('pending');
             $table->timestamps();
         });
     }

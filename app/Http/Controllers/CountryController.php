@@ -13,6 +13,7 @@ class CountryController extends Controller
      */
     public function index(FilterCountryRequest $request)
     {
+        $this->authorize('viewAny',Country::class);
         $countries = Country::filter($request)->with(['cities','cities.airports','cities.hotels'])->paginate(10);
         return self::paginated($countries);
     }

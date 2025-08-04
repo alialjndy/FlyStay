@@ -14,129 +14,156 @@ use Stripe\Stripe;
 use Stripe\Webhook;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class StripePaymentService{
-    public function __construct(){
+class StripePaymentService {
+    public function __construct() {
         Stripe::setApiKey(config('services.stripe.secret'));
     }
-    private function getAuthenticatedUser(){
+
+    private function getMessage($status , $message ,$code = 400) {
+        return [
+            'status'=> $status ,
+            'message' => $message,
+            'code'=> $code
+        ];
+    }
+
+    private function getAuthenticatedUser() {
         return JWTAuth::parseToken()->authenticate();
     }
-    public function createIntent($model , $id){
+
+    public function createIntent($model ,$id ,$agentUserId = null) {
         $modelClass = match($model) {
-            'flight-booking' => \App\Models\FlightBooking::class,
-            'hotel-booking' => \App\Models\HotelBooking::class,
-            default => null,
+            'flight-booking' => FlightBooking::class,
+            'hotel-booking' => HotelBooking::class,
+            default => throw new \InvalidArgumentException('Model not supported'),
         };
-        if(!$modelClass){
-            return [
-                'status'=>'error',
-                'message'=>'Model not supported'
-            ];
-        }
+
+        // Find the booking instance
         $modelInstance = $modelClass::find($id);
         if (!$modelInstance) {
-            return [
-                'status'=>'error',
-                'message'=>'Model instance not found'
-            ];
+            return $this->getMessage('error','Model instance not found.', 404);
         }
-        try{
-            $amount = (int) ($modelInstance->getAmount() * 100);
-            $paymentIntent = PaymentIntent::create([
-                'amount'=>$amount,
-                'currency'=>'usd'
-            ]);
 
-            $modelInstance->payments()->create([
-                'user_id' => $this->getAuthenticatedUser()->id,
-                'method' => 'stripe',
-                'transaction_id'=>$paymentIntent->id,
+        try {
+            // Get authenticated user and check their role
+            $authUser = $this->getAuthenticatedUser();
+            $isCustomer = $authUser->hasRole('customer');
+
+            // Verify user has proper authorization
+            if(!$isCustomer && !$authUser->hasAnyRole(['flight_agent','hotel_agent'])){
+                return $this->getMessage('error', 'Unauthorized payment agent.', 403);
+            }
+
+            // Set payment parameters based on user role
+            $userId     = $isCustomer ? $authUser->id : $agentUserId;
+            $method     = $isCustomer ? 'stripe' : 'cash';
+            $verifiedBy = $isCustomer ? null : $authUser->id ;
+            $status     = $isCustomer ? 'pending' : 'completed';
+            $clientSecret = null ;
+            $transactionId = null;
+
+            // Verify user owns the booking
+            if($userId != $modelInstance->user_id){
+                return $this->getMessage('error','User is not the owner of this booking.', 403);
+            }
+
+            // Handle cash payments (agent scenario)
+            if($method == 'cash'){
+                $modelInstance->status = 'confirmed';
+                $modelInstance->save();
+            }
+
+            // Handle Stripe payments (customer scenario)
+            if($isCustomer){
+                $amountInCents = (int) ($modelInstance->getAmount() * 100);
+                $paymentIntent = PaymentIntent::create([
+                    'amount' => $amountInCents,
+                    'currency' => 'usd',
+                ]);
+                $transactionId = $paymentIntent->id ;
+                $clientSecret = $paymentIntent->client_secret ;
+            }
+            $paymentInfo = $modelInstance->payments()->create([
+                'user_id' => $userId,
+                'method' => $method,
+                'transaction_id' => $transactionId,
+                'verified_by' => $verifiedBy,
                 'amount' => $modelInstance->getAmount(),
-                'date'=>Carbon::now(),
-                'status' => 'pending',
+                'date' => Carbon::now(),
+                'status' => $status,
             ]);
 
             return [
-                'status'=>'success',
-                'data'=>$paymentIntent->client_secret
+                'status' => 'success',
+                'data' => $isCustomer ? $clientSecret : $paymentInfo,
             ];
-        }catch(Exception $e){
-            return [
-                'status'=>'failed',
-                'message'=>$e->getMessage()
-            ];
+        } catch(Exception $e) {
+            return $this->getMessage('failed', $e->getMessage(), 500);
         }
     }
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return array{code: int, message: string, status: string|string[]}
-     */
-    public function handleWebhook(Request $request){
+
+    public function handleWebhook(Request $request) {
         $payload = $request->getContent();
         $sig_header = $request->header('Stripe-Signature');
         $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
 
         try {
-            $event = Webhook::constructEvent(  $payload, $sig_header, $endpoint_secret);
+            $event = Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
         } catch (\UnexpectedValueException $e) {
-            // Invalid payload
-            return [
-                'status'=>'error',
-                'message'=>'Invalid payload',
-                'code'=>400
-            ];
+            return response()->json($this->getMessage('error', 'Invalid payload', 400), 400);
         } catch (\Stripe\Exception\SignatureVerificationException $e) {
-            // Invalid signature
-            return [
-                'status'=>'error',
-                'message'=>'Invalid signature',
-                'code'=>400
-            ];
+            return response()->json($this->getMessage('error', 'Invalid signature', 400), 400);
         }
-        // $paymentIntent = $event->data->object;
-        // $status = $event->type === 'payment_intent.succeeded' ? 'completed' : 'failed';
-        // $payment = Payment::where('transaction_id',$paymentIntent->id)->first();
-
-        // $payment->status = $status ;
-        // $payment->save();
-
-        // $booking = $payment->payable ;
-        // $booking->status = $status === 'completed' ? 'complete' : 'failed';
-        // $booking->save();
 
         Log::info('Received Stripe Webhook', ['event_type' => $event->type]);
-        switch ($event->type) {
-            case 'payment_intent.succeeded':
-                $paymentIntent = $event->data->object;
 
-                $payment = Payment::where('transaction_id',$paymentIntent->id)->first();
-                $payment->status = 'completed';
-                $payment->save();
+        try {
+            switch ($event->type) {
+                case 'payment_intent.created':
+                    Log::info('PaymentIntent created', ['id' => $event->data->object->id]);
+                    break;
+                case 'payment_intent.succeeded':
+                    $paymentIntent = $event->data->object;
+                    $payment = Payment::where('transaction_id', $paymentIntent->id)->first();
 
-                $booking = $payment->payable ;
-                $booking->status = 'complete';
-                $booking->save();
-                break;
-            case 'payment_intent.payment_failed':
-                $paymentIntent = $event->data->object;
+                    if ($payment) {
+                        $payment->status = 'completed';
+                        $payment->save();
 
-                $payment = Payment::where('transaction_id',$paymentIntent->id)->first();
-                $payment->status = 'failed';
-                $payment->transaction_id = $paymentIntent->id;
+                        $booking = $payment->payable;
+                        if ($booking instanceof Model) {
+                            $booking->status = 'confirmed';
+                            $booking->save();
+                        }
+                    }
+                    break;
 
-                $payment->save();
+                case 'payment_intent.payment_failed':
+                    $paymentIntent = $event->data->object;
+                    $payment = Payment::where('transaction_id', $paymentIntent->id)->first();
 
-                $booking = $payment->payable ;
-                $booking->status = 'failed';
-                $booking->save();
-                break;
-            // ... handle other event types
-            default:
-                return [
-                    'status'=>'error',
-                    'message' => 'Received unknown event type' ,
-                ];
+                    if ($payment) {
+                        $payment->status = 'failed';
+                        $payment->transaction_id = $paymentIntent->id;
+                        $payment->save();
+
+                        $booking = $payment->payable;
+                        if ($booking instanceof Model) {
+                            $booking->status = 'failed';
+                            $booking->save();
+                        }
+                    }
+                    break;
+
+                default:
+                    Log::warning('Unhandled Stripe event type', ['event_type' => $event->type]);
+                    break;
+            }
+
+            return response()->json(['status' => 'success'], 200);
+        } catch (\Exception $e) {
+            Log::error('Error handling Stripe webhook: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Webhook handling failed'], 500);
         }
-
     }
 }

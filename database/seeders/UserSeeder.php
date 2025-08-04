@@ -31,8 +31,22 @@ class UserSeeder extends Seeder
             'phone_number'=>'000000001',
             'password'=>bcrypt('strongPass123@'),
         ]);
+        $hotelAgent = User::create([
+            'name'=>'Hotel Agent' ,
+            'email'=>'hotelAgent@gmail.com',
+            'phone_number'=>'0999999999',
+            'password'=>bcrypt('strongPass123@')
+        ]);
+        $finance_officer = User::create([
+            'name'=>'finance officer' ,
+            'email'=>'financeOfficer@gmail.com',
+            'phone_number'=>'0999999990',
+            'password'=>bcrypt('strongPass123@')
+        ]);
         $flightAgentUser->assignRole('flight_agent');
         $adminUser->assignRole('admin');
         $customerUser->assignRole('customer');
+        $hotelAgent->assignRole('hotel_agent');
+        $finance_officer->assignRole('finance_officer');
     }
 }

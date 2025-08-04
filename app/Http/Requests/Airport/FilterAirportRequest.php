@@ -1,21 +1,30 @@
 <?php
 
-namespace App\Http\Requests\Payment;
+namespace App\Http\Requests\Airport;
 
+use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class StripePaymentRequest extends FormRequest
+class FilterAirportRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        $user = JWTAuth::parseToken()->authenticate();
-        return $user && ($user->hasAnyRole(['customer','flight_agent','hotel_agent']));
+        try{
+            $user = JWTAuth::parseToken()->authenticate();
+            return $user && $user->hasAnyRole(['admin','flight_agent']);
+        }catch(Exception $e){
+            return false ;
+        }
+    }
+    protected function failedAuthorization(){
+        throw new AuthorizationException('you cannot perform this action.');
     }
 
     /**
@@ -25,9 +34,8 @@ class StripePaymentRequest extends FormRequest
      */
     public function rules(): array
     {
-        $user = JWTAuth::parseToken()->authenticate();
         return [
-            'user_id'=> $user->hasRole('customer') ? 'nullable|exists:users,id' : 'required|exists:users,id'
+            'countryName'=>'nullable|string'
         ];
     }
     public function failedValidation(Validator $validator){
@@ -41,13 +49,12 @@ class StripePaymentRequest extends FormRequest
     }
     public function attributes(){
         return [
-            'user_id' => 'User ID'
+            'countryName'=>'Country Name',
         ];
     }
     public function messages(){
-        return [
-           'required' => 'The :attribute field is required.',
-            'exists' => 'The selected :attribute is invalid.',
+        return[
+            'string'=> 'The :attribute field value must be a string',
         ];
     }
 }

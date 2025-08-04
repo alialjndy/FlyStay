@@ -21,6 +21,7 @@ class RoleController extends Controller
      */
     public function index()
     {
+        #TODO تخصيص كل أفعال هذا الملف إلى الأدمن فقط Admin
         $roles = $this->roleService->getAllRoles();
         return self::paginated($roles , RoleResource::class);
     }
