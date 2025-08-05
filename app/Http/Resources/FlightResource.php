@@ -38,6 +38,7 @@ class FlightResource extends JsonResource
                     'IATA_code'=>$this->arrivalAirport->IATA_code
                 ];
             }),
+            'flight_details'=>$this->whenLoaded('flightDetails'),
         ];
     }
 }
