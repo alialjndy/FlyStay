@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Flight\CreateFlightRequest;
 use App\Http\Requests\Flight\FilterFlightRequest;
 use App\Http\Requests\Flight\UpdateFlightRequest;
+use App\Http\Resources\FlightResource;
 use App\Models\Flight;
 use App\Services\Flight\FlightService;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class FlightController extends Controller
     public function index(FilterFlightRequest $request)
     {
         $allFlights = $this->flightService->getAllFlights($request->validated());
-        return self::paginated($allFlights);
+        return self::paginated($allFlights , FlightResource::class);
     }
 
     /**
@@ -45,7 +46,7 @@ class FlightController extends Controller
     public function show(Flight $flight)
     {
         $flight = $flight->load(['departureAirport','arrivalAirport','flightDetails']);
-        return self::success([$flight]);
+        return self::success([new FlightResource($flight)]);
     }
 
     /**

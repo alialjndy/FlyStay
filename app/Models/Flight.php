@@ -39,7 +39,7 @@ class Flight extends Model
             ->when(($filters['from_date'] ?? null) && ($filters['to_date']?? null),function($query) use($filters){
                 $query->whereBetween('departure_time',[$filters['from_date'],$filters['to_date']]);
             })
-            ->when($filters['arrival_country'] , function($query) use($filters){
+            ->when($filters['arrival_country'] ?? null , function($query) use($filters){
                 $Arrivalcountry = $this->arrivalAirport->country;
                 $query->where($filters['arrival_country'],'LIKE',$Arrivalcountry);
             })
