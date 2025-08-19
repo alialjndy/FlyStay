@@ -30,7 +30,8 @@ class UserResource extends JsonResource
                     'id'=>$permission->id,
                     'name'=>$permission->name
                 ];
-            })
+            }),
+            'favorites'=>$this->whenLoaded('favorites'),
         ];
     }
 }

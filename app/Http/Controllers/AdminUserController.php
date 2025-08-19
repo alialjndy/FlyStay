@@ -14,7 +14,7 @@ class AdminUserController extends Controller
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function index(FilterAdminUserRequest $request){
-        $allUsers = User::filterRole($request->role_name)->with(['roles:id,name','permissions:id,name'])->paginate(10);
+        $allUsers = User::filterRole($request->role_name)->with(['roles:id,name','permissions:id,name','favorites'])->paginate(10);
         return self::paginated($allUsers, UserResource::class);
     }
     /**
@@ -29,7 +29,7 @@ class AdminUserController extends Controller
      */
     public function show(User $user){
         $this->authorize('view', $user);
-        $user = $user->load(['roles','permissions']);
+        $user = $user->load(['roles','permissions','favorites']);
         return self::success([new UserResource($user)]);
     }
     /**

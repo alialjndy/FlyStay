@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FlightBookingController;
 use App\Http\Controllers\FlightCabinController;
 use App\Http\Controllers\FlightController;
@@ -84,6 +85,8 @@ Route::middleware('auth:api')->group(function(){
 
     Route::post('payments/{type}/{id}', [StripePaymentController::class, 'createPaymentIntent']);
 
+    Route::post('favorite/{type}/{id}', [FavoriteController::class ,'handle']);
+
 });
     Route::post('stripe/webhook', [StripePaymentController::class, 'handleWebhook']);
 
@@ -105,4 +108,4 @@ Route::controller(SocialAuthController::class)->group(function(){
     Route::get('/auth/google/redirect', 'redirectToGoogle');
     Route::get('/auth/google/callback', 'handleGoogleCallback');
 });
-Route::post('/auth/google/login', [AuthController::class, 'loginWithEmail'])->middleware('throttle:5,1');
+// Route::post('/auth/google/login', [AuthController::class, 'loginWithEmail'])->middleware('throttle:5,1');
