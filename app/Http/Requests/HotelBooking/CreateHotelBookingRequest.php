@@ -46,7 +46,7 @@ class CreateHotelBookingRequest extends FormRequest
     public function withValidator(Validator $validator){
         $validator->after(function($validator){
             $room = Room::find($this->room_id);
-            if(!$room->isAvailable()){
+            if(!$room->isAvailable($this->check_in_date , $this->check_out_date)){
                 $validator->errors()->add('room_id','Room is not available.');
             }
         });
