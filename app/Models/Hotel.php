@@ -60,4 +60,7 @@ class Hotel extends Model
     public function rooms(){
         return $this->hasMany(Room::class,'hotel_id');
     }
+    public function favorites(){
+        return $this->morphMany(Favorite::class,'favoritable');
+    }
 }

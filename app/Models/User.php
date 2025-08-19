@@ -63,7 +63,7 @@ class User extends Authenticatable implements JWTSubject , MustVerifyEmail , Can
         return [];
     }
     public function sendPasswordResetNotification($token){
-        $url = 'https://spa.test/reset-password?token=' . $token ;
+        $url = 'https://localhost:5173/reset-password?token=' . $token ;
         $this->notify(new ResetPasswordNotification($url));
     }
     public function scopeFilterRole($query , $roleName){
@@ -83,6 +83,9 @@ class User extends Authenticatable implements JWTSubject , MustVerifyEmail , Can
         return $this->flightBookings()->whereHas('flightCabin.flight',function($query){
             $query->where('departure_time','>',now());
         });
+    }
+    public function favorites(){
+        return $this->hasMany(Favorite::class ,'user_id');
     }
 
 

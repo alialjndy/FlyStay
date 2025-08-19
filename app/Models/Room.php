@@ -60,12 +60,21 @@ class Room extends Model
     /**
      * Check if the room is currently available
      */
-    public function isAvailable(){
-        if(!$this->hotelBookings()->exists()){return true ;}
-
-        $latestActiveBooking = $this->hotelBookings()->whereNotIn('status', ['cancelled', 'failed','complete'])
-            ->latest('check_out_date')->first();
-        //
-        if(!$latestActiveBooking){return true ;}
+    public function isAvailable($startDate, $endDate){
+        return !$this->hotelBookings()
+            ->whereNotIn('status', ['cancelled', 'failed', 'complete'])
+            ->where(function($query) use ($startDate, $endDate) {
+                $query->whereBetween('check_in_date', [$startDate, $endDate])
+                    ->orWhereBetween('check_out_date', [$startDate, $endDate])
+                    ->orWhere(function($q) use ($startDate, $endDate) {
+                        $q->where('check_in_date', '<=', $startDate)
+                            ->where('check_out_date', '>=', $endDate);
+                    });
+            })
+        ->exists();
+        #TODO عندما يتم انتهاء موعد الحجز أي قام الشخص بالسكن بالغرفة وانتهى الحجز تصبح الحالة كومبليت
+    }
+    public function favorites(){
+        return $this->morphMany(Favorite::class,'favoritable');
     }
 }
