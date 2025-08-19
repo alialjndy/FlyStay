@@ -24,7 +24,7 @@ class SocialAuthController extends Controller
     }
     public function handleGoogleCallback(){
         $data = $this->authService->handleGoogleCallback();
-        return $this->success(['token'=>$data['token']],200,$data['message']);
+        return $this->success(['token'=>$data['token'] , 'roles'=>$data['roles']],200,$data['message']);
 
     }
 }
