@@ -1,9 +1,14 @@
 <?php
 namespace App\Services\Payment;
 
+use App\Jobs\FlightBookingConfirmedEmailJob;
+use App\Jobs\HotelBookingConfirmedEmailJob;
+use App\Jobs\PaymentStatusNotificationJob;
 use App\Models\FlightBooking;
 use App\Models\HotelBooking;
 use App\Models\Payment;
+use App\Models\User;
+use App\Notifications\PaymentStatusNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -67,11 +72,6 @@ class StripePaymentService {
                 return $this->getMessage('error','User is not the owner of this booking.', 403);
             }
 
-            // Handle cash payments (agent scenario)
-            if($method == 'cash'){
-                $modelInstance->status = 'confirmed';
-                $modelInstance->save();
-            }
 
             // Handle Stripe payments (customer scenario)
             if($isCustomer){
@@ -92,6 +92,26 @@ class StripePaymentService {
                 'date' => Carbon::now(),
                 'status' => $status,
             ]);
+
+            // Handle cash payments (agent scenario)
+            if($method == 'cash'){
+                $modelInstance->status = 'confirmed';
+                $modelInstance->save();
+
+                $booking = $paymentInfo->payable ;
+                $agentId = $paymentInfo->verified_by;
+                $agent = User::findOrFail($agentId);
+
+                if($booking instanceof FlightBooking){
+                    // $agent->notify(new PaymentStatusNotification($paymentInfo)); // send notification to the flight_agent user
+                    dispatch(new PaymentStatusNotificationJob($paymentInfo->id , $agentId));
+                    dispatch(new FlightBookingConfirmedEmailJob($paymentInfo->id , $booking->id));
+                }elseif($booking instanceof HotelBooking){
+                    // $agent->notify(new PaymentStatusNotification($paymentInfo)); // send notfication to the hotel_agent user
+                    dispatch(new PaymentStatusNotificationJob($paymentInfo->id , $agent->id));
+                    dispatch(new HotelBookingConfirmedEmailJob($paymentInfo->id , $booking->id));
+                }
+            }
 
             return [
                 'status' => 'success',
@@ -134,6 +154,13 @@ class StripePaymentService {
                         if ($booking instanceof Model) {
                             $booking->status = 'confirmed';
                             $booking->save();
+
+                            $classBaseName = class_basename($booking);
+                            if($classBaseName === 'FlightBooking'){
+                                dispatch(new FlightBookingConfirmedEmailJob($payment->id , $booking->id));
+                            }elseif($classBaseName === 'HotelBooking'){
+                                dispatch(new HotelBookingConfirmedEmailJob($payment->id , $booking->id));
+                            }
                         }
                     }
                     break;
