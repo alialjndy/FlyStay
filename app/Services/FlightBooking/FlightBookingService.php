@@ -1,6 +1,8 @@
 <?php
 namespace App\Services\FlightBooking;
 
+use App\Jobs\FlightBookingPendingEmailJob;
+use App\Jobs\SendFlightBookingPendingEmailJob;
 use App\Models\FlightBooking;
 use App\Models\FlightCabin;
 use App\Models\User;
@@ -9,6 +11,7 @@ use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class FlightBookingService{
@@ -77,6 +80,7 @@ class FlightBookingService{
         DB::beginTransaction();
         try{
             $flightBooking = FlightBooking::create($bookingData);
+            dispatch(new FlightBookingPendingEmailJob($flightBooking->id));
             $flightCabin->decrement('available_seats');
             DB::commit();
             return [
