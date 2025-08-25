@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\HotelBooking;
 
+use App\Jobs\HotelBookingPendingEmailJob;
 use App\Models\HotelBooking;
 use App\Models\Room;
 use Carbon\Carbon;
@@ -23,7 +24,7 @@ class HotelBookingService{
     public function createBooking(array $data){
         $user = JWTAuth::parseToken()->authenticate();
         $userBookingHotel = $user->hasRole('customer') ? $user->id : $data['user_id'];
-        return HotelBooking::create([
+        $hotelBooking = HotelBooking::create([
             'user_id'         => $userBookingHotel,
             'room_id'         => $data['room_id'],
             'check_in_date'   => $data['check_in_date'],
@@ -31,6 +32,8 @@ class HotelBookingService{
             'booking_date'    => Carbon::now() , // When the record was created in the database
             'status'          => 'pending'
         ]);
+        dispatch(new HotelBookingPendingEmailJob($hotelBooking->id));
+        return $hotelBooking ;
     }
     /**
      * Update a booking (users can only modify check-in and check-out times)
