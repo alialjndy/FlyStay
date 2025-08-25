@@ -54,4 +54,7 @@ class Flight extends Model
     public function flightDetails(){
         return $this->hasMany(FlightCabin::class,'flight_id');
     }
+    public function  favorites(){
+        return $this->morphMany(Favorite::class, 'favoritable');
+    }
 }

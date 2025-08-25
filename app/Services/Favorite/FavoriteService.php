@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\Favorite;
 
+use App\Models\Flight;
 use App\Models\Hotel;
 use App\Models\Room;
 use Exception;
@@ -47,6 +48,7 @@ class FavoriteService{
         $models = [
             'hotel' => Hotel::class,
             'room' => Room::class,
+            'flight' => Flight::class ,
         ];
         if(!array_key_exists($type ,$models)){
             throw new \InvalidArgumentException('Model type not supported');
