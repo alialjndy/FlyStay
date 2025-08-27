@@ -108,11 +108,8 @@ class AuthService{
         }
 
         $token = JWTAuth::fromUser($user);
-
-        $cookie = Cookie::make('jwt_token', $token, 60, '/', null, false, true); // HttpOnly=true, Secure=false لـ localhost
-
-        $frontendURL = "http://localhost:5173/auth/callback?status=success&jwt_token=" . $token;
-        return redirect()->away($frontendURL)->withCookies([$cookie]);
+        $cookie = Cookie::make('jwt_token', $token, 60, '/', 'localhost', false, true , false ,'Strict'); //
+        return $cookie ;
     }
 
 

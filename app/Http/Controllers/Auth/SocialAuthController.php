@@ -23,7 +23,7 @@ class SocialAuthController extends Controller
 
     }
     public function handleGoogleCallback(){
-        $this->authService->handleGoogleCallback();
-        return self::success([]);
+        $cookie = $this->authService->handleGoogleCallback();
+        return redirect()->away("http://localhost:5173/auth/callback")->withCookie($cookie);
     }
 }
