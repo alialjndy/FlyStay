@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Payment\FilterPaymentRequest;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 
@@ -10,40 +11,37 @@ class PaymentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(FilterPaymentRequest $request)
     {
-        //
+        $this->authorize('viewAny',Payment::class);
+        $allPayments = Payment::with('payable')->filter($request->validated())->paginate(10);
+        return self::paginated($allPayments);
     }
-
     /**
-     * Store a newly created resource in storage.
+     * Summary of create
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
-    {
-        //
+    public function store(){
+        return self::error('unSupported Yet!','error',501);
     }
-
     /**
      * Display the specified resource.
      */
     public function show(Payment $payment)
     {
-        //
+        $this->authorize('view',$payment);
+        $payment->load('payable');
+        return self::success([$payment]);
+    }
+    /**
+     * Summary of udpate
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function update(){
+        return self::error('unSupported Yet!','error',501);
+    }
+    public function destroy(){
+        return self::error('unSupported Yet!','error',501);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Payment $payment)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Payment $payment)
-    {
-        //
-    }
 }
