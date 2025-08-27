@@ -19,7 +19,12 @@ class Image extends Model
         'updated_at',
 
     ];
+    protected $appends = ['url'];
     public function imageable(){
         return $this->morphTo();
     }
+    public function getUrlAttribute(){
+        return url('storage/'. $this->image_path);
+    }
+
 }

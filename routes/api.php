@@ -81,15 +81,12 @@ Route::middleware('auth:api')->group(function () {
 
     Route::resource('flight-bookings', FlightBookingController::class);
     Route::post('flight-bookings/{flightBooking}/cancel', [FlightBookingController::class, 'cancelBooking']);
-    // Route::post('flight-bookings/{flightBooking}/paid',[StripePaymentController::class,'createPaymentIntent']);
 
     Route::resource('hotel-bookings', HotelBookingController::class);
     Route::post('hotel-bookings/{hotelBooking}/cancel', [HotelBookingController::class, 'cancel']);
 
     Route::get('my-bookings',[BookingController::class,'myBookings']);
 
-    // Route::get('/all-payments',[PaymentController::class ,'index']);
-    // Route::get('/show-payment/{payment}',[PaymentController::class ,'show']);
     Route::resource('payments',PaymentController::class);
     Route::post('payments/{type}/{id}', [StripePaymentController::class, 'createPaymentIntent']);
 
@@ -115,5 +112,15 @@ Route::controller(SocialAuthController::class)->group(function () {
     Route::get('/auth/google/redirect', 'redirectToGoogle');
     Route::get('/auth/google/callback', 'handleGoogleCallback');
 });
-// Route::post('/auth/google/login', [AuthController::class, 'loginWithEmail'])->middleware('throttle:5,1');
 
+//
+Route::get('test-hotel-agent',function(){
+    $user = User::create([
+        'name'=>'Hotel Agent' ,
+        'email'=>'alialjndy2@gmail.com',
+        'phone_number'=>'0999999221999',
+        'password'=>bcrypt('strongPass123@')
+    ]);
+    $user->assignRole('hotel_agent');
+    return response()->json(['token'=>JWTAuth::fromUser($user), 'roles'=>$user->getRoleNames()]);
+});
