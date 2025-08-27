@@ -5,11 +5,14 @@ use App\Jobs\SendAuthenticatedEmailJob;
 use App\Models\User;
 use Exception;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Response as FacadesResponse;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -86,109 +89,31 @@ class AuthService{
     public function me(){
         return Auth::user();
     }
-    /**
-     * Summary of handleGoogleCallback
-     * @return array{message: string, token: mixed}
-     */
     public function handleGoogleCallback(){
-        $googleUser = Socialite::driver('google')
-            ->stateless()
-            ->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))
-            ->user();
+        $googleUser = Socialite::driver('google')->stateless()->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))->user();
 
-        $existingUser = User::where('email',$googleUser->getEmail())->first();
-        if($existingUser){
-            return $this->respondWithToken($existingUser , 'Welcom Back !!');
-        }else{
-            $newUser = User::create([
-                'name'          =>$googleUser->getName() ?? $googleUser->getNickname(),
-                'email'         => $googleUser->getEmail(),
-                'password'      => bcrypt(Str::random(16)),
+        $user = User::firstOrCreate(
+            ['email'=>$googleUser->getEmail()],
+            [
+                'name'=>$googleUser->getName() ?? $googleUser->getNickname(),
+                'email' => $googleUser->getEmail(),
+                'password' => bcrypt(Str::random(16)),
                 'email_verified_at' => now(),
-            ]);
-            $newUser->assignRole('customer');
-            return $this->respondWithToken($newUser , 'Login successful via Google but you need to complete your proifle informations');
+            ]
+        );
+
+        $message = $user->wasRecentlyCreated ? 'Welcome! Please complete your profile' : 'Welcome Back!';
+        if($user->wasRecentlyCreated){
+            $user->assignRole('customer');
         }
 
-
+        $token = JWTAuth::fromUser($user);
+        $cookie = cookie('jwt_token',$token,60,'/',null,false,true);
+        $frontendURL = "http://localhost:5173/auth/callback?status=success&message=" . urlencode($message);
+        Log::info("يتم الآن إرسال الكوكي إلى الفرونت أند");
+        return redirect()->away($frontendURL)->withCookie($cookie);
     }
-    private function respondWithToken(User $user, string $message){
-        return [
-            'message' => $message,
-            'token'   => JWTAuth::fromUser($user),
-            'roles'   => $user->getRoleNames()
-        ];
-    }
-    // /**
-    //  * Summary of loginWithGoogle
-    //  * @param string $accessToken
-    //  * @return array{code: int, message: string, token: mixed|array{code: int, message: string}}
-    //  */
-    // public function loginWithGoogle(string $accessToken)
-    // {
-    //     try {
-    //         $tokenInfo = Http::get("https://www.googleapis.com/oauth2/v3/tokeninfo", [
-    //             'access_token' => $accessToken
-    //         ]);
 
-    //         if (!$tokenInfo->ok()) {
-    //             Log::warning('Invalid Google access token attempt.', ['access_token' => $accessToken]);
-    //             return [
-    //                 'message' => 'Invalid or expired Google access token.',
-    //                 'code' => 401
-    //             ];
-    //         }
-
-    //         $tokenData = $tokenInfo->json();
-
-    //         if ($tokenData['aud'] !== config('services.google.client_id')) {
-    //             Log::warning('Token audience mismatch.', ['aud' => $tokenData['aud']]);
-    //             return [
-    //                 'message' => 'Token not issued for this application.',
-    //                 'code' => 403
-    //             ];
-    //         }
-
-    //         if (isset($tokenData['exp']) && $tokenData['exp'] < time()) {
-    //             return [
-    //                 'message' => 'Token has expired.',
-    //                 'code' => 401
-    //             ];
-    //         }
-
-    //         $googleUser = Socialite::driver('google')
-    //             ->stateless()
-    //             ->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))
-    //             ->userFromToken($accessToken);
-
-    //         $user = User::where('email', $googleUser->getEmail())->first();
-
-    //         if (!$user) {
-    //             Log::info('Google login failed. Email not registered.', ['email' => $googleUser->getEmail()]);
-    //             return [
-    //                 'message' => 'No account associated with this Google email.',
-    //                 'code' => 404
-    //             ];
-    //         }
-
-    //         $token = JWTAuth::fromUser($user);
-
-    //         Log::info('Google login successful.', ['user_id' => $user->id, 'email' => $user->email]);
-
-    //         return [
-    //             'message' => 'Login successful via Google.',
-    //             'token' => $token,
-    //             'code' => 200
-    //         ];
-
-    //     } catch (Exception $e) {
-    //         Log::error('Google login exception.', ['error' => $e->getMessage()]);
-    //         return [
-    //             'message' => 'An unexpected error occurred.',
-    //             'code' => 500
-    //         ];
-    //     }
-    // }
 
     /**
      * Summary of completeProfile
