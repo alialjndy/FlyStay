@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\FavoriteController;
@@ -17,15 +18,17 @@ use App\Http\Controllers\FlightController;
 use App\Http\Controllers\HotelBookingController;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\StripePaymentController;
 use App\Models\Country;
+use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 // Public Routes (no authentication required)
 Route::middleware(['throttle:api'])->group(function () {
@@ -83,6 +86,11 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('hotel-bookings', HotelBookingController::class);
     Route::post('hotel-bookings/{hotelBooking}/cancel', [HotelBookingController::class, 'cancel']);
 
+    Route::get('my-bookings',[BookingController::class,'myBookings']);
+
+    // Route::get('/all-payments',[PaymentController::class ,'index']);
+    // Route::get('/show-payment/{payment}',[PaymentController::class ,'show']);
+    Route::resource('payments',PaymentController::class);
     Route::post('payments/{type}/{id}', [StripePaymentController::class, 'createPaymentIntent']);
 
     Route::post('favorite/{type}/{id}', [FavoriteController::class, 'handle']);
@@ -108,17 +116,4 @@ Route::controller(SocialAuthController::class)->group(function () {
     Route::get('/auth/google/callback', 'handleGoogleCallback');
 });
 // Route::post('/auth/google/login', [AuthController::class, 'loginWithEmail'])->middleware('throttle:5,1');
-use Illuminate\Support\Facades\Crypt;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
-Route::get('/check-token', function (Request $request) {
-    $token = $request->cookie('jwt_token');
-
-    try {
-        $decrypted = Crypt::decrypt($token); // فك التشفير
-        $user = JWTAuth::setToken($decrypted)->authenticate();
-        return response()->json(['user' => $user]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 401);
-    }
-});
