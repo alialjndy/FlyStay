@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FlightBooking\CreateFlightBookingRequest;
 use App\Http\Requests\FlightBooking\FilterFlightBookingRequest;
 use App\Http\Requests\FlightBooking\UpdateFlightBookingRequest;
+use App\Http\Resources\FlightBookingResource;
 use App\Models\FlightBooking;
 use App\Models\User;
 use App\Services\FlightBooking\FlightBookingService;
@@ -23,7 +24,7 @@ class FlightBookingController extends Controller
     {
         $this->authorize('viewAny',FlightBooking::class);
         $allFlightBookings = $this->service->getAllFlightBookings($request->validated());
-        return self::paginated($allFlightBookings);
+        return self::paginated($allFlightBookings , FlightBookingResource::class);
     }
 
     /**
@@ -33,8 +34,8 @@ class FlightBookingController extends Controller
     {
         $info = $this->service->createBooking($request->validated());
         return $info['status'] == 'success' ?
-        self::success([$info['data']],201 , $info['message']) :
-        self::error('Error Ouccred',$info['status'],$info['status_code'],[$info['message']]);
+        self::success([new FlightBookingResource($info['data'])],201 , $info['message']) :
+        self::error('Error Occurred',$info['status'],$info['status_code'],[$info['message']]);
     }
 
     /**
@@ -44,7 +45,7 @@ class FlightBookingController extends Controller
     {
         $this->authorize('view',$flightBooking);
         $flightBooking = $flightBooking->load(['user','flightCabin']);
-        return self::success([$flightBooking]);
+        return self::success([new FlightBookingResource($flightBooking)]);
     }
 
     /**
@@ -52,6 +53,7 @@ class FlightBookingController extends Controller
      */
     public function update(UpdateFlightBookingRequest $request, FlightBooking $flightBooking)
     {
+        $this->authorize('update',$flightBooking);
         $info = $this->service->update($request->validated() , $flightBooking);
         return $info['status'] == 'success' ?
         self::success([$info['data']]) :
@@ -68,19 +70,9 @@ class FlightBookingController extends Controller
         return self::success([null]);
     }
     public function cancelBooking(FlightBooking $flightBooking){
-        // $flightBooking = FlightBooking::findOrFail($id);
         $info = $this->service->cancelBooking($flightBooking);
         return $info['status'] == 'success' ?
             self::success([$info['data']],200 ,'Flight Cancelled Successfully!'):
             self::error('Error Occurred',$info['status'],400,[$info['message']]);
     }
-    // public function test(){
-    //     $flightAgentUser = User::create([
-    //         'name'=>'flightAgent',
-    //         'email'=>'flightAgent@gmail.com',
-    //         'phone_number'=>'000000001',
-    //         'password'=>bcrypt('strongPass123@'),
-    //     ]);
-    //     $flightAgentUser->assignRole('flight_agent');
-    // }
 }

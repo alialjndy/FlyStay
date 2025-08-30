@@ -15,7 +15,8 @@ class UpdateRoomRequest extends FormRequest
     public function authorize(): bool
     {
         try{
-            return (bool) JWTAuth::parseToken()->authenticate();
+            $user = JWTAuth::parseToken()->authenticate();
+            return $user->hasAnyRole(['hotel_agent','admin']);
         }catch(Exception $e){
             return false ;
         }

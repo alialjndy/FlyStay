@@ -7,6 +7,7 @@ use App\Http\Requests\Hotel\FilterHotelRequest;
 use App\Http\Requests\Hotel\UpdateHotelRequest;
 use App\Http\Requests\Image\UpdateImageRequest;
 use App\Http\Requests\Image\UploadImageRequest;
+use App\Http\Resources\HotelResource;
 use App\Models\Hotel;
 use App\Services\Hotel\HotelService;
 use App\Services\Image\ImageService;
@@ -81,5 +82,9 @@ class HotelController extends Controller
         $this->authorize('delete',$hotel);
         $messages = $this->hotelService->deleteHotel($hotel);
         return self::success([$messages]);
+    }
+    public function suggestHotels($destinationCityId){
+        $suggestHotel = Hotel::where('city_id',$destinationCityId)->paginate(10);
+        return self::paginated($suggestHotel , HotelResource::class);
     }
 }

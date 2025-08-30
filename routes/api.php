@@ -71,6 +71,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::put('hotels/{hotel}/update-with-photo', [HotelController::class, 'update']);
     Route::resource('hotel', HotelController::class);
+    Route::get('cities/{city_id}/hotels',[HotelController::class,'suggestHotels']);
 
     Route::resource('room', RoomController::class);
     Route::put('rooms/{room}/update-with-photo', [RoomController::class, 'update']);
@@ -111,16 +112,4 @@ Route::controller(EmailVerificationController::class)->middleware('auth:api')->g
 Route::controller(SocialAuthController::class)->group(function () {
     Route::get('/auth/google/redirect', 'redirectToGoogle');
     Route::get('/auth/google/callback', 'handleGoogleCallback');
-});
-
-//
-Route::get('test-hotel-agent',function(){
-    $user = User::create([
-        'name'=>'Hotel Agent' ,
-        'email'=>'alialjndy2@gmail.com',
-        'phone_number'=>'0999999221999',
-        'password'=>bcrypt('strongPass123@')
-    ]);
-    $user->assignRole('hotel_agent');
-    return response()->json(['token'=>JWTAuth::fromUser($user), 'roles'=>$user->getRoleNames()]);
 });

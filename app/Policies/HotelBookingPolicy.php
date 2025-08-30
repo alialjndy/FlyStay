@@ -30,7 +30,7 @@ class HotelBookingPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['customer','hotel_agent']);
+        return $user->hasAnyRole(['customer','hotel_agent','admin']);
     }
 
     /**
@@ -38,7 +38,7 @@ class HotelBookingPolicy
      */
     public function update(User $user, HotelBooking $hotelBooking): bool
     {
-        return $user->hasAnyRole(['hotel_agent']) || ($user->hasRole('customer') && $user->id === $hotelBooking->user_id);
+        return $user->hasAnyRole(['hotel_agent','admin']) || ($user->hasRole('customer') && $user->id === $hotelBooking->user_id);
     }
 
     /**
@@ -46,7 +46,7 @@ class HotelBookingPolicy
      */
     public function delete(User $user, HotelBooking $hotelBooking): bool
     {
-        return $user->hasRole('hotel_agent') ;
+        return $user->hasAnyRole(['hotel_agent','admin']) ;
     }
 
     /**

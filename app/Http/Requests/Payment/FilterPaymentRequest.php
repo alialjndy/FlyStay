@@ -17,7 +17,7 @@ class FilterPaymentRequest extends FormRequest
     {
         try{
             $user = JWTAuth::parseToken()->authenticate();
-            return $user && $user->hasRole('finance_officer');
+            return $user && $user->hasAnyRole(['finance_officer','admin']);
         }catch(Exception){
             return false ;
         }

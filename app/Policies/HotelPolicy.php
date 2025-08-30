@@ -45,7 +45,7 @@ class HotelPolicy
      */
     public function delete(User $user, Hotel $hotel): bool
     {
-        return $user->hasRole('hotel_agent');
+        return $user->hasAnyRole(['hotel_agent','admin']);
     }
 
     /**

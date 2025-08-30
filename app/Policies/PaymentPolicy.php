@@ -13,7 +13,7 @@ class PaymentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('finance_officer');
+        return $user->hasAnyRole(['finance_officer','admin']);
     }
 
     /**
@@ -21,7 +21,7 @@ class PaymentPolicy
      */
     public function view(User $user, Payment $payment): bool
     {
-        return ($user->hasRole('finance_officer') || ($user->hasRole('customer') && $payment->user_id === $user->id));
+        return ($user->hasAnyRole(['finance_officer','admin']) || ($user->hasRole('customer') && $payment->user_id === $user->id));
     }
 
     /**

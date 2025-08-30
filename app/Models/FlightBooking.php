@@ -59,4 +59,11 @@ class FlightBooking extends Model
     public function getAmount(){
         return $this->flightCabin->price ;
     }
+    public function DestinationCity(){
+        return $this->flightCabin->flight->arrivalAirport->city ;
+    }
+    public function SuggestHotels(){
+        $recommindationHotels = Hotel::where('city_id',$this->DestinationCity()->id);
+        return $recommindationHotels ;
+    }
 }

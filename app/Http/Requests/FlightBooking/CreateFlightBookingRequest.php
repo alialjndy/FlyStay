@@ -17,7 +17,7 @@ class CreateFlightBookingRequest extends FormRequest
     public function authorize(): bool
     {
         $user = JWTAuth::parseToken()->authenticate();
-        return $user && $user->hasAnyRole(['customer', 'flight_agent']);
+        return $user && $user->hasAnyRole(['customer', 'flight_agent','admin']);
     }
     protected function failedAuthorization(){
         throw new AuthorizationException('you cannot perform this action.');
@@ -49,6 +49,9 @@ class CreateFlightBookingRequest extends FormRequest
         $validator->after(function($validator){
             $flightCabin = FlightCabin::find($this->input('flight_cabins_id'));
 
+            if (!$flightCabin) {
+                return;
+            }
             $flight = $flightCabin->flight ;
 
             if($flight->departure_time < now()){

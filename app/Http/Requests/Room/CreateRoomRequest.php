@@ -16,7 +16,7 @@ class CreateRoomRequest extends FormRequest
     {
         try{
             $user = JWTAuth::parseToken()->authenticate();
-            return $user && $user->hasRole('hotel_agent');
+            return $user && $user->hasAnyRole(['hotel_agent','admin']);
         }catch(Exception $e){
             return false ;
         }

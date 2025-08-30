@@ -27,6 +27,7 @@ class FlightResource extends JsonResource
                     'id'=>$this->departureAirport->id,
                     'name'=>$this->departureAirport->name,
                     'city_name'=>$this->departureAirport->city->name,
+                    'country_name'=>$this->departureAirport->country->name,
                     'IATA_code'=>$this->departureAirport->IATA_code
                 ];
             }),
@@ -35,6 +36,7 @@ class FlightResource extends JsonResource
                     'id'=>$this->arrivalAirport->id,
                     'name'=>$this->arrivalAirport->name,
                     'city_name'=>$this->arrivalAirport->city->name,
+                    'country_name'=>$this->arrivalAirport->country->name,
                     'IATA_code'=>$this->arrivalAirport->IATA_code
                 ];
             }),

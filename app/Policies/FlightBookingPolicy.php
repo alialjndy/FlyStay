@@ -29,7 +29,7 @@ class FlightBookingPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['customer','flight_agent']);
+        return $user->hasAnyRole(['customer','flight_agent','admin']);
     }
 
     /**
@@ -37,7 +37,7 @@ class FlightBookingPolicy
      */
     public function update(User $user, FlightBooking $flightBooking): bool
     {
-        return $user->hasRole('flight_agent');
+        return ($user->hasAnyRole(['flight_agent','admin']) || $flightBooking->user_id == $user->id);
     }
 
     /**
@@ -45,7 +45,7 @@ class FlightBookingPolicy
      */
     public function delete(User $user, FlightBooking $flightBooking): bool
     {
-        return $user->hasRole('flight_agent');
+        return $user->hasRole(['flight_agent','admin']);
     }
 
     /**

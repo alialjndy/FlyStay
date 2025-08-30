@@ -18,7 +18,7 @@ class UpdateHotelBookingRequest extends FormRequest
     {
         try{
             $user = JWTAuth::parseToken()->authenticate();
-            return $user && $user->hasAnyRole(['customer', 'hotel_agent']);
+            return $user && $user->hasAnyRole(['customer', 'hotel_agent','admin']);
         }catch(Exception $e){
             return false ;
         }

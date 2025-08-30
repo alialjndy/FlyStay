@@ -45,7 +45,7 @@ class FlightPolicy
      */
     public function delete(User $user, flight $flight): bool
     {
-        return $user->hasRole('flight_agent');
+        return $user->hasAnyRole(['flight_agent','admin']);
     }
 
     /**

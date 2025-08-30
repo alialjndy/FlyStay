@@ -15,7 +15,7 @@ class StripePaymentRequest extends FormRequest
     public function authorize(): bool
     {
         $user = JWTAuth::parseToken()->authenticate();
-        return $user && ($user->hasAnyRole(['customer','flight_agent','hotel_agent']));
+        return $user && ($user->hasAnyRole(['customer','flight_agent','hotel_agent','admin']));
     }
 
     /**

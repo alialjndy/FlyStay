@@ -16,7 +16,7 @@ class UpdateFlightBookingRequest extends FormRequest
     public function authorize(): bool
     {
         $user = JWTAuth::parseToken()->authenticate();
-        return $user && $user->hasAnyRole(['customer', 'flight_agent']);
+        return $user && $user->hasAnyRole(['customer', 'flight_agent','admin']);
     }
     protected function failedAuthorization(){
         throw new AuthorizationException('you cannot perform this action.');

@@ -13,6 +13,7 @@
         "laravel/socialite": "^5.20",
         "laravel/tinker": "^2.10.1",
         "mailgun/mailgun-php": "^4.3",
+        "pusher/pusher-php-server": "^7.2",
         "spatie/laravel-permission": "^6.18",
         "stripe/stripe-php": "^17.4",
         "tymon/jwt-auth": "^2.2"
