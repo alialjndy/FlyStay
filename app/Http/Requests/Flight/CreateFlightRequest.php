@@ -52,6 +52,8 @@ class CreateFlightRequest extends FormRequest
         $validator->after(function($validator){
             $departure = $this->input('departure_airport_id');
             $arrival = $this->input('arrival_airport_id');
+
+            if(!$departure || !$arrival){return ;}
             if($departure === $arrival){
                 $validator->errors()->add('arrival_airport_id', 'Arrival airport must be different from departure airport.');
             }
