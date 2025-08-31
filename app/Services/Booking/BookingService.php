@@ -12,8 +12,8 @@ class BookingService{
         $flightBooking = FlightBooking::where('user_id',$user->id)->get();
 
         return [
-            'hotel-bookings'=>$hotelBooking,
-            'flight-bookings'=>$flightBooking,
+            'hotel_bookings'=>$hotelBooking,
+            'flight_bookings'=>$flightBooking,
         ];
     }
 }

@@ -18,10 +18,13 @@ class FlightBookingResource extends JsonResource
         return [
             'id'=>$this->id,
             'flight_cabins_id'=>$this->flight_cabins_id ,
-            'booking_date'=>Carbon::parse($this->booking_date),
+            'booking_date'=>Carbon::parse($this->booking_date)->toFormattedDateString(),
             'seat_number'=>$this->seat_number ,
             'status'=>$this->status ,
+            'amount' =>$this->getAmount(),
             'user_id'=>$this->user_id ,
+            'user_name'=>$this->user->name ,
+            'user_email'=>$this->user->email ,
             'flight_cabin'=>[
                     'id'=>$this->flightCabin->id,
                     'flight_id'=>$this->flightCabin->flight_id ,
