@@ -45,6 +45,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/me', 'me');
         Route::post('/logout', 'logout');
         Route::post('complete-profile', 'completeProfile');
+        Route::post('change-password',[PasswordResetController::class,'changePassword']);
     });
     Route::resource('user', AdminUserController::class);
 

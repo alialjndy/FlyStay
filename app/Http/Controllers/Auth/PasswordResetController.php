@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ChangePasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\SendResetLinkRequest;
 use App\Services\Auth\AuthService;
@@ -36,5 +37,11 @@ class PasswordResetController extends Controller
         return response()->json([
             'message'=>$result['message']
         ],$result['code']);
+    }
+    public function changePassword(ChangePasswordRequest $request){
+        $info = $this->authService->changePassword($request->validated());
+        return $info['status'] === 'success' ?
+            self::success([],$info['code'],$info['message']) :
+            self::error('Error Occurred',$info['status'],$info['code'],[$info['error']]);
     }
 }

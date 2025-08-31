@@ -165,4 +165,44 @@ class AuthService{
                 ['message'=>'password updated successfully','code'=>'200'] :
                 ['message'=>'error occurred','code'=>500];
     }
+    /**
+     *  Change the authenticated user's password.
+     * @param array $data
+     * @return array{code: int, errors: string, status: string|array{code: int, message: string, status: string}}
+     */
+    public function changePassword(array $data){
+        try{
+            $authUser = JWTAuth::parseToken()->authenticate();
+
+            // Extract current and new password from the request data
+            $current_password = $data['current_password'];
+            $new_password = $data['new_password'];
+
+            // Verify that the current password matches the stored hash
+            if(!Hash::check($current_password , $authUser->password)){
+                return [
+                    'status'=>'error',
+                    'error'=>'Current password is incorrect',
+                    'code'=>401
+                ];
+            }
+
+            // Hash the new password and update the user record
+            $authUser->password = Hash::make($new_password);
+            $authUser->setRememberToken(Str::random(60));
+            $authUser->save();
+
+            return [
+                'status'=>'success',
+                'message'=>'password updated successfully',
+                'code'=>200
+            ];
+        }catch(Exception $e){
+            return [
+                'status'=>'failed',
+                'error'=>$e->getMessage(),
+                'code'=>500
+            ];
+        }
+    }
 }
