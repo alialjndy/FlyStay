@@ -14,7 +14,7 @@ class PaymentController extends Controller
     public function index(FilterPaymentRequest $request)
     {
         $this->authorize('viewAny',Payment::class);
-        $allPayments = Payment::with('payable')->filter($request->validated())->paginate(10);
+        $allPayments = Payment::with(['payable','user'])->filter($request->validated())->paginate(10);
         return self::paginated($allPayments);
     }
     /**
@@ -30,7 +30,7 @@ class PaymentController extends Controller
     public function show(Payment $payment)
     {
         $this->authorize('view',$payment);
-        $payment->load('payable');
+        $payment->load(['payable','user']);
         return self::success([$payment]);
     }
     /**

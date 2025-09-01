@@ -27,11 +27,18 @@ class Payment extends Model
     protected function casts(){
         return [
             'amount'=>'decimal:2',
-            'date'=>'date'
+            'date'=>'datetime'
         ];
     }
     public function payable(){
         return $this->morphTo();
+    }
+    public function user(){
+        return $this->belongsTo(User::class , 'user_id');
+    }
+    public function getDateAttribute($value)
+    {
+        return Carbon::parse($value)->toFormattedDateString();
     }
     public function scopeFilter($query , $filters){
         return $query
