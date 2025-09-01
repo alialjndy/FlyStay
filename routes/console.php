@@ -8,5 +8,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('app:expire-pending-flight-bookings')->everyMinute();
-Schedule::command('app:expire-pending-hotel-bookings')->everyMinute();
+Schedule::command('app:expire-pending-flight-bookings')->hourly();
+Schedule::command('app:expire-pending-hotel-bookings')->hourly();
+Schedule::command('app:expire-confirmed-hotel-bookings')->hourly();
