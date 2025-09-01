@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hotels', function (Blueprint $table) {
+        Schema::create('ratings', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->foreignId('city_id')->constrained('cities')->cascadeOnDelete();
-            $table->unsignedInteger('count_ratings')->default(0);
-            $table->unsignedInteger('sum_ratings')->default(0);
-            $table->integer('rating')->default(0);
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('hotel_id')->constrained('hotels')->cascadeOnDelete();
+            $table->integer('rating');
             $table->text('description')->nullable();
             $table->timestamps();
         });
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('hotels');
+        Schema::dropIfExists('ratings');
     }
 };

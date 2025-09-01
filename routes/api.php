@@ -20,6 +20,7 @@ use App\Http\Controllers\HotelController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RatingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\StripePaymentController;
@@ -86,6 +87,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::resource('hotel-bookings', HotelBookingController::class);
     Route::post('hotel-bookings/{hotelBooking}/cancel', [HotelBookingController::class, 'cancel']);
+
+    Route::resource('ratings',RatingController::class);
 
     Route::get('my-bookings',[BookingController::class,'myBookings']);
 
