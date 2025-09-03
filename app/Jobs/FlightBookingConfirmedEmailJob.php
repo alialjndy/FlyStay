@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Mail\FlightBookingConfirmedEmail;
 use App\Models\FlightBooking;
 use App\Models\Payment;
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -58,14 +59,14 @@ class FlightBookingConfirmedEmailJob implements ShouldQueue
             'flight_number' => $flight->flight_number,
             'departure'     => $flight->departureAirport->city->name . ', ' . $flight->departureAirport->country->name,
             'arrival'       => $flight->arrivalAirport->city->name . ', ' . $flight->arrivalAirport->country->name,
-            'booking_date'  => $booking->booking_date->format('Y-m-d H:i:s'),
+            'booking_date'  => $booking->booking_date,
             'seat_number'   =>$booking->seat_number ,
             'status'        =>$booking->status ,
 
             // payment info
 
             'payment_amount' => $payment->amount,
-            'payment_date'   => $payment->date?->format('Y-m-d H:i:s'),
+            'payment_date'   => Carbon::parse($payment->date)->format('Y-m-d H:i:s'),
             'payment_method' => $payment->method,
             'payment_status' => $payment->status,
         ];

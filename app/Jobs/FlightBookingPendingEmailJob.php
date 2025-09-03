@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Mail\FlightBookingPendingEmail;
 use App\Models\FlightBooking;
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -48,7 +49,7 @@ class FlightBookingPendingEmailJob implements ShouldQueue
             'flight_number' => $flight->flight_number,
             'departure' => $flight->departureAirport->city->name . ', ' . $flight->departureAirport->country->name,
             'arrival' => $flight->arrivalAirport->city->name . ', ' . $flight->arrivalAirport->country->name,
-            'booking_date' => $booking->booking_date->format('Y-m-d H:i:s'),
+            'booking_date' => Carbon::parse($booking->booking_date)->format('Y-m-d H:i:s'),
             'seat_number'=>$booking->seat_number ,
             'status'=>$booking->status ,
         ];
