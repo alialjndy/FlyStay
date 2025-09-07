@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\Auth\AuthService;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -28,14 +30,23 @@ class EmailVerificationController extends Controller
      * @param \Illuminate\Foundation\Auth\EmailVerificationRequest $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function verify(EmailVerificationRequest $request)
-    {
-        $request->fulfill();
+public function verify(Request $request, $id, $hash){
+    $user = User::findOrFail($id);
 
-        return response()->json([
-            'message' => 'Email verified successfully.'
-        ]);
+    if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        return response()->json(['message' => 'Invalid verification link.'], 403);
     }
+
+    if ($user->hasVerifiedEmail()) {
+        return response()->json(['message' => 'Email already verified.'], 200);
+    }
+
+    $user->markEmailAsVerified();
+    event(new Verified($user));
+
+    return response()->json(['message' => 'Email verified successfully.'], 200);
+}
+
     /**
      * Resend the email verification link.
      * @param \Illuminate\Http\Request $request
@@ -52,12 +63,5 @@ class EmailVerificationController extends Controller
         return response()->json([
             'message' => 'Verification link sent!'
         ]);
-    }
-    public function loginWithEmail(string $accessToken){
-        $result = $this->authService->loginWithGoogle($accessToken);
-        return response()->json([
-            'message'=>$result['message'],
-            'token'=>$result['token'] ? $result['token'] : null
-        ],$result['code']);
     }
 }

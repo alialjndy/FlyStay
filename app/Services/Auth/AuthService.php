@@ -111,23 +111,6 @@ class AuthService{
         $cookie = Cookie::make('jwt_token', $token, 60, '/', 'localhost', false, true , false ,'Strict'); //
         return $cookie ;
     }
-
-
-    /**
-     * Summary of completeProfile
-     * @param mixed $data
-     * @param \App\Models\User $user
-     * @return array{message: string}
-     */
-    public function completeProfile($data){
-        $user_id = Auth::user()->id;
-        $user = User::findOrFail($user_id);
-        $user->phone_number = $data['phone_number'];
-        $user->save();
-        return [
-            'message'=>'profile completed successfully'
-        ];
-    }
     /**
      * Summary of sendResetLink
      * @param mixed $data

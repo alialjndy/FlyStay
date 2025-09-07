@@ -24,6 +24,7 @@ use App\Http\Controllers\RatingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\StripePaymentController;
+use App\Http\Controllers\UserController;
 use App\Models\Country;
 use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -45,10 +46,13 @@ Route::middleware('auth:api')->group(function () {
     Route::controller(AuthController::class)->group(function () {
         Route::get('/me', 'me');
         Route::post('/logout', 'logout');
-        Route::post('complete-profile', 'completeProfile');
+        // Route::post('complete-profile', 'completeProfile');
         Route::post('change-password',[PasswordResetController::class,'changePassword']);
     });
     Route::resource('user', AdminUserController::class);
+
+    Route::post('complete-profile',[UserController::class,'completeProfile']);
+    Route::put('update-profile',[UserController::class,'update']);
 
     Route::resource('permission', PermissionController::class);
     Route::post('assign-permission-to-user', [AdminPermissionController::class, 'assignPermissionToUser']);
@@ -100,17 +104,16 @@ Route::middleware('auth:api')->group(function () {
 Route::post('stripe/webhook', [StripePaymentController::class, 'handleWebhook']);
 
 //
-Route::controller(EmailVerificationController::class)->middleware('auth:api')->group(function () {
-    // Resend Email Verification Link
+Route::controller(EmailVerificationController::class)->group(function () {
+    // Resend verification link (requires login)
     Route::post('/email/verification-notification', 'resend')
-        ->middleware(['throttle:api'])->name('verification.send');
+        ->middleware(['auth:api', 'throttle:api'])
+        ->name('verification.send');
 
-    // Email verification callback route
-    Route::get('/email/verify', 'notice')->name('verification.notice');
-
-    //
-    Route::get('/email/verify/{id}/{hash}', 'verify')
-        ->middleware(['signed'])->name('verification.verify');
+    // // Email verification callback (no auth required, only signed URL)
+    // Route::get('/email/verify/{id}/{hash}', 'verify')
+    //     ->middleware(['signed'])
+    //     ->name('verification.verify');
 });
 
 Route::controller(SocialAuthController::class)->group(function () {

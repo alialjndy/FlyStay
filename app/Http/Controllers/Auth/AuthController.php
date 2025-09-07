@@ -51,14 +51,4 @@ class AuthController extends Controller
         $data = $this->authService->logout();
         return $this->success([] , 200 , $data['message'],$data['status']);
     }
-    /**
-     * Summary of completeProfile
-     * @param \App\Http\Requests\Auth\PhoneNumberRequest $phoneRequest
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function completeProfile(PhoneNumberRequest $phoneRequest){
-        $result = $this->authService->completeProfile($phoneRequest->validated());
-        return $this->success([],200,$result['message']);
-    }
 }
