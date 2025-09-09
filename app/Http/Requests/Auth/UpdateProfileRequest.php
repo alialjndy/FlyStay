@@ -32,8 +32,8 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'name'        =>'nullable|string|min:3|max:100',
-            'email'       =>'nullable|email|unique:users,email',
-            'phone_number'=>['nullable','string','min:8','max:15','unique:users,phone_number', new ValidPhoneNumber],
+            'email'       =>'nullable|email|unique:users,email,' . JWTAuth::parseToken()->authenticate()->id,
+            'phone_number'=>['nullable','string','min:8','max:15','unique:users,phone_number,'. JWTAuth::parseToken()->authenticate()->id, new ValidPhoneNumber],
         ];
     }
     public function failedValidation(\Illuminate\Contracts\Validation\Validator $validator){
