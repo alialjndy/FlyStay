@@ -36,7 +36,11 @@ class FilterFlightRequest extends FormRequest
             'later_flight'=>'nullable|boolean',
             'airline'=>'nullable|string',
             'from_date'=>'nullable|date',
-            'to_date'=>'nullable|date'
+            'to_date'=>'nullable|date' ,
+            'arrival_country'=>'nullable|string' ,
+            'departure_country'=>'nullable|string' ,
+            'arrival_city'=>'nullable|string' ,
+            'departure_city'=>'nullable|string'
         ];
     }
     public function failedValidation(Validator $validator){
