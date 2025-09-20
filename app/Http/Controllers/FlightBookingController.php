@@ -72,7 +72,7 @@ class FlightBookingController extends Controller
     public function cancelBooking(FlightBooking $flightBooking){
         $info = $this->service->cancelBooking($flightBooking);
         return $info['status'] == 'success' ?
-            self::success([$info['data']],200 ,'Flight Cancelled Successfully!'):
+            self::success([$info['data']],200 ,'Flight Cancelled Successfully! '.$info['message']):
             self::error('Error Occurred',$info['status'],400,[$info['message']]);
     }
 }

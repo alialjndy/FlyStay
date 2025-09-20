@@ -6,6 +6,7 @@ use App\Jobs\SendFlightBookingPendingEmailJob;
 use App\Models\FlightBooking;
 use App\Models\FlightCabin;
 use App\Models\User;
+use App\Services\Payment\RefundStripePaymentService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -15,6 +16,10 @@ use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class FlightBookingService{
+    protected RefundStripePaymentService $service ;
+    public function __construct(RefundStripePaymentService $service){
+        $this->service = $service ;
+    }
 
     public function getAllFlightBookings($filters = []){
         return FlightBooking::filter($filters)->with('flightCabin')->paginate(10);
@@ -105,17 +110,34 @@ class FlightBookingService{
      * @return array{data: FlightBooking, status: string|array{message: string, status: string}}
      */
     public function cancelBooking(FlightBooking $flightBooking){
+        $message = "No refund required.";
         $user = JWTAuth::parseToken()->authenticate();
 
         // Check authorization
         $isAuthorized = $user->hasRole('flight_agent') || ($user->hasRole('customer') && $user->id == $flightBooking->user_id);
 
         if(!$isAuthorized){throw new AuthorizationException('You are not authorized to cancel this booking');}
-        if(!in_array($flightBooking->status, ['pending', 'complete'])){
+        if(in_array($flightBooking->status, ['failed', 'complete','cancelled'])){
             return [
                 'status'=>'error',
                 'message'=>'Booking cannot be cancelled in its current status ('. $flightBooking->status .')',
             ];
+        }
+
+        if($flightBooking->status === 'confirmed'){
+
+            // fetch the payment associated with the booking.
+            $refundResult = $this->service->refunde($flightBooking);
+
+            // Failed refund money
+            if($refundResult['status'] === 'failed'){
+                return [
+                    'status'=>'error',
+                    'message'=>'Refund failed: '.$refundResult['message']
+                ];
+            }
+
+            $message = 'Refund processed successfully.';
         }
 
         // Verify booking is in cancelable state (pending or complete) and user is authorized
@@ -124,8 +146,10 @@ class FlightBookingService{
             $flightBooking->update(['status'=>'cancelled']);
             $flightBooking->flightCabin->increment('available_seats');
             DB::commit();
+
             return [
                 'status'=>'success',
+                'message'=>$message ,
                 'data'=>$flightBooking->refresh()
             ];
         }catch(Exception $e){

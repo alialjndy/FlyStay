@@ -8,16 +8,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::controller(SocialAuthController::class)->group(function () {
+Route::controller(SocialAuthController::class)->withoutMiddleware('verified')->group(function () {
     Route::get('/auth/google/redirect', 'redirectToGoogle');
     Route::get('/auth/google/callback', 'handleGoogleCallback');
 });
-Route::controller(EmailVerificationController::class)->group(function () {
-    // Route::post('/email/verification-notification', 'resend')
-    //     ->middleware(['auth:sanctum', 'throttle:6,1'])
-    //     ->name('verification.send');
-
+Route::controller(EmailVerificationController::class)->withoutMiddleware('verified')->group(function () {
     Route::get('/email/verify/{id}/{hash}', 'verify')
         ->middleware(['signed'])
         ->name('verification.verify');
+});
+Route::get('payment-test',function(){
+    return view('payment-test');
 });

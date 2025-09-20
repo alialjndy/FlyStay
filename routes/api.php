@@ -25,6 +25,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\StripePaymentController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\EnsureEmailVerified;
 use App\Models\Country;
 use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -41,14 +42,14 @@ Route::middleware(['throttle:api'])->group(function () {
     Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->middleware('guest');
 });
 
+Route::middleware('auth:api')->controller(AuthController::class)->group(function () {
+    Route::get('/me', 'me');
+    Route::post('/logout', 'logout');
+    // Route::post('complete-profile', 'completeProfile');
+    Route::post('change-password',[PasswordResetController::class,'changePassword']);
+});
 // Protected Routes (requires API authentication)
-Route::middleware('auth:api')->group(function () {
-    Route::controller(AuthController::class)->group(function () {
-        Route::get('/me', 'me');
-        Route::post('/logout', 'logout');
-        // Route::post('complete-profile', 'completeProfile');
-        Route::post('change-password',[PasswordResetController::class,'changePassword']);
-    });
+Route::middleware(['auth:api','verified'])->group(function () {
     Route::resource('user', AdminUserController::class);
 
     Route::post('complete-profile',[UserController::class,'completeProfile']);
@@ -109,11 +110,6 @@ Route::controller(EmailVerificationController::class)->group(function () {
     Route::post('/email/verification-notification', 'resend')
         ->middleware(['auth:api', 'throttle:api'])
         ->name('verification.send');
-
-    // // Email verification callback (no auth required, only signed URL)
-    // Route::get('/email/verify/{id}/{hash}', 'verify')
-    //     ->middleware(['signed'])
-    //     ->name('verification.verify');
 });
 
 Route::controller(SocialAuthController::class)->group(function () {

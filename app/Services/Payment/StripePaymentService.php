@@ -35,8 +35,9 @@ class StripePaymentService {
     private function getAuthenticatedUser() {
         return JWTAuth::parseToken()->authenticate();
     }
-
     public function createIntent($model ,$id ,$agentUserId = null) {
+
+        // Get Model Class
         $modelClass = match($model) {
             'flight-booking' => FlightBooking::class,
             'hotel-booking' => HotelBooking::class,
@@ -44,7 +45,7 @@ class StripePaymentService {
         };
 
         // Find the booking instance
-        $modelInstance = $modelClass::find($id);
+        $modelInstance = $modelClass::find($id); // eg: FlightBooking::find(1)
         if (!$modelInstance) {
             return $this->getMessage('error','Model instance not found.', 404);
         }
@@ -75,7 +76,18 @@ class StripePaymentService {
 
             // Handle Stripe payments (customer scenario)
             if($isCustomer){
+
+                // Check if there is already an existing payment record for this user and booking
+                // If found and its status is "pending", stop and return an error response
+                $existingPayment = $authUser->activePayment($modelClass , $id);
+                if($existingPayment){
+                    return $this->getMessage('failed','payment record already exists but with status pending',403);
+                }
+
+                // Convert amount from dollars to cents
                 $amountInCents = (int) ($modelInstance->getAmount() * 100);
+
+                // Create a new PaymentIntent on Stripe
                 $paymentIntent = PaymentIntent::create([
                     'amount' => $amountInCents,
                     'currency' => 'usd',
@@ -83,6 +95,7 @@ class StripePaymentService {
                 $transactionId = $paymentIntent->id ;
                 $clientSecret = $paymentIntent->client_secret ;
             }
+
             $paymentInfo = $modelInstance->payments()->create([
                 'user_id' => $userId,
                 'method' => $method,
@@ -103,11 +116,9 @@ class StripePaymentService {
                 $agent = User::findOrFail($agentId);
 
                 if($booking instanceof FlightBooking){
-                    // $agent->notify(new PaymentStatusNotification($paymentInfo)); // send notification to the flight_agent user
                     dispatch(new PaymentStatusNotificationJob($paymentInfo->id , $agentId));
                     dispatch(new FlightBookingConfirmedEmailJob($paymentInfo->id , $booking->id));
                 }elseif($booking instanceof HotelBooking){
-                    // $agent->notify(new PaymentStatusNotification($paymentInfo)); // send notfication to the hotel_agent user
                     dispatch(new PaymentStatusNotificationJob($paymentInfo->id , $agent->id));
                     dispatch(new HotelBookingConfirmedEmailJob($paymentInfo->id , $booking->id));
                 }
@@ -181,14 +192,24 @@ class StripePaymentService {
                         }
                     }
                     break;
+                case 'charge.refunded':
+                case 'refund.created':
+                case 'refund.updated':
 
+                    // Refund Money After Cancelled booking.
+                    $charge = $event->data->object ;
+                    $payment = Payment::where('transaction_id', $charge->payment_intent)->first();
+                    if($payment){
+                        $payment->update(['status'=>'refunded']);
+                    }
+                    break ;
                 default:
                     Log::warning('Unhandled Stripe event type', ['event_type' => $event->type]);
                     break;
             }
 
             return response()->json(['status' => 'success'], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error handling Stripe webhook: ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Webhook handling failed'], 500);
         }

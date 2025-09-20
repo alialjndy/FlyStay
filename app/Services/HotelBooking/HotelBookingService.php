@@ -4,10 +4,15 @@ namespace App\Services\HotelBooking;
 use App\Jobs\HotelBookingPendingEmailJob;
 use App\Models\HotelBooking;
 use App\Models\Room;
+use App\Services\Payment\RefundStripePaymentService;
 use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class HotelBookingService{
+    protected RefundStripePaymentService $service ;
+    public function __construct(RefundStripePaymentService $service){
+        $this->service = $service ;
+    }
     /**
      * Get all hotel bookings with their relationships and optional filtering
      * @param array $filters
@@ -47,22 +52,37 @@ class HotelBookingService{
     }
 
     public function cancelBooking(HotelBooking $hotelBooking){
+        $message = "No refund required.";
         $AuthUser = JWTAuth::parseToken()->authenticate();
 
+        $isOwner = $AuthUser->hasRole('customer') && $hotelBooking->user_id === $AuthUser->id ;
+        $isAgent = $AuthUser->hasRole('hotel_agent');
+
         // Only booking owner (customer) or hotel agent can cancel - all others denied
-        if(!($AuthUser->hasRole('customer') && $AuthUser->id === $hotelBooking->user_id) && !$AuthUser->hasRole('hotel_agent')){
+        if(!$isOwner && !$isAgent){
             return $this->getMessage('error','you cannot execute this action.' ,403);
         }
 
-        // Only pending bookings can be cancelled
-        if($hotelBooking->status !== 'pending'){
-            return $this->getMessage('error' ,'The Hotel Booking status is not a pending', 400);
+        if(in_array($hotelBooking->status,['failed','complete','cancelled'])){
+            return $this->getMessage('error' ,'Booking cannot be cancelled in its current state.', 400);
+        }
+        if($hotelBooking->status === 'confirmed'){
+
+            // fetch the payment associated with the booking.
+            $refundResult = $this->service->refunde($hotelBooking);
+
+            // Failed refund money
+            if($refundResult['status'] === 'failed'){
+                return $this->getMessage('error', 'Refund failed: '.$refundResult['message'], 400);
+            }
+
+            $message = 'Refund processed successfully.';
         }
 
         $hotelBooking->update([
             'status' => 'cancelled'
         ]);
-        return $this->getMessage('success','Booking Cancelled successfully' ,200);
+        return $this->getMessage('success','Booking Cancelled successfully '.$message ,200);
         #TODO القيام بتغيير حالة الحجز عندما يقترب موعد الحجز ولم يتم الدفع
         #TODO إرسال تذكيرات إلى المستخدم لكي يقوم بالدفع
     }
