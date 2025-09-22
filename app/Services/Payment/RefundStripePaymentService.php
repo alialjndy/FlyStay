@@ -11,17 +11,17 @@ class RefundStripePaymentService{
     public function refunde(HotelBooking | FlightBooking $booking){
         try{
             Stripe::setApiKey(env('STRIPE_SECRET'));
-            $paymentInfo = $booking->payment;
+            $paymentInfo = $booking->ActivePayment();
 
             // Create a refund request through Stripe
             $refund = Refund::create([
                 'payment_intent'=>$paymentInfo->transaction_id ,
             ]);
 
-            // // Update payment status only if refund succeeded
-            // if($refund->status === 'succeeded'){
-            //     $paymentInfo->update(['status'=>'refunded']);
-            // }
+            if($refund->status === 'succeeded'){
+                $paymentInfo->update(['status' => 'refunded']);
+            }
+
             return [
                 'status'=>'success',
                 'message'=>'payment refunde successfully',

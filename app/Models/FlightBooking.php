@@ -66,4 +66,7 @@ class FlightBooking extends Model
         $recommindationHotels = Hotel::where('city_id',$this->DestinationCity()->id);
         return $recommindationHotels ;
     }
+    public function ActivePayment(){
+        return $this->payments()->where('status','completed')->first();
+    }
 }

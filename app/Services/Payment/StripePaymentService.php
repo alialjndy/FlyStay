@@ -214,4 +214,12 @@ class StripePaymentService {
             return response()->json(['status' => 'error', 'message' => 'Webhook handling failed'], 500);
         }
     }
+    private function handleEvent($payment , $new_payment_status , $new_booking_status , $payment_Intent){
+        $payment->update([
+            'status'=>$new_payment_status
+        ]);
+
+        $booking = $payment->payable ;
+        $booking->update(['status'=>$new_booking_status]);
+    }
 }

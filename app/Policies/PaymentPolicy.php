@@ -35,9 +35,9 @@ class PaymentPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Payment $payment): bool
+    public function update(User $user, Payment $payment)
     {
-        return false;
+        return ($user->hasRole('finance_officer') && $payment->method === 'cash');
     }
 
     /**

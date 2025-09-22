@@ -2,6 +2,7 @@
 namespace App\Services\FlightBooking;
 
 use App\Jobs\FlightBookingPendingEmailJob;
+use App\Jobs\SendFlightBookingCancelledEmailJob;
 use App\Jobs\SendFlightBookingPendingEmailJob;
 use App\Models\FlightBooking;
 use App\Models\FlightCabin;
@@ -116,7 +117,12 @@ class FlightBookingService{
         // Check authorization
         $isAuthorized = $user->hasRole('flight_agent') || ($user->hasRole('customer') && $user->id == $flightBooking->user_id);
 
-        if(!$isAuthorized){throw new AuthorizationException('You are not authorized to cancel this booking');}
+        if(!$isAuthorized){
+            throw new AuthorizationException('You are not authorized to cancel this booking');
+        }
+
+        // Check Booking Status
+         // --- IGNORE ---
         if(in_array($flightBooking->status, ['failed', 'complete','cancelled'])){
             return [
                 'status'=>'error',
@@ -124,20 +130,34 @@ class FlightBookingService{
             ];
         }
 
+        // Check if cancellation is allowed (at least 4 hours before departure)
+        $this->checkCancelBooking($flightBooking);
+
         if($flightBooking->status === 'confirmed'){
 
-            // fetch the payment associated with the booking.
-            $refundResult = $this->service->refunde($flightBooking);
-
-            // Failed refund money
-            if($refundResult['status'] === 'failed'){
-                return [
-                    'status'=>'error',
-                    'message'=>'Refund failed: '.$refundResult['message']
-                ];
+            // If Payment method is cash
+            if($flightBooking->ActivePayment()->method === 'cash'){
+                $message = 'Booking cancelled. Please visit our office for cash refund.';
+                dispatch(new SendFlightBookingCancelledEmailJob($user->id , $flightBooking->id));
             }
 
-            $message = 'Refund processed successfully.';
+            // If Payment method is stripe
+            else if($flightBooking->ActivePayment()->method === 'stripe'){
+
+                // fetch the payment associated with the booking.
+                $refundResult = $this->service->refunde($flightBooking);
+
+                // Failed refund money
+                if($refundResult['status'] === 'failed'){
+                    return [
+                        'status'=>'error',
+                        'message'=>'Refund failed: '.$refundResult['message']
+                    ];
+                }
+
+                $message = 'Refund processed successfully.';
+            }
+
         }
 
         // Verify booking is in cancelable state (pending or complete) and user is authorized
@@ -150,7 +170,7 @@ class FlightBookingService{
             return [
                 'status'=>'success',
                 'message'=>$message ,
-                'data'=>$flightBooking->refresh()
+                'data'=>$flightBooking
             ];
         }catch(Exception $e){
             DB::rollBack();
@@ -203,5 +223,13 @@ class FlightBookingService{
     public function deleteBooking(FlightBooking $flightBooking){
         $flightBooking->flightCabin->increment('available_seats');
         $flightBooking->delete();
+    }
+    private function checkCancelBooking($flightBooking){
+        $oldFourHours = Carbon::now()->addHours(4);
+        $departureTime = Carbon::parse($flightBooking->flightCabin->flight->departure_time);
+
+        if($oldFourHours->greaterThan($departureTime)){
+            throw new AuthorizationException('Cancellations must be made at least 4 hours before departure time.');
+        }
     }
 }
