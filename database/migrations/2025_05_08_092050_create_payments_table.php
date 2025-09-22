@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('transaction_id')->nullable()->unique();
             $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();
             $table->decimal('amount',8,2);
-            $table->date('date')->useCurrent();
+            $table->dateTime('date')->useCurrent();
             $table->enum('status',['pending', 'completed', 'failed', 'refunded'])->default('pending');
 
             // Polymorphic fields

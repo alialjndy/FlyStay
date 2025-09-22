@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('flight_cabins_id')->constrained('flight_cabins')->cascadeOnDelete();
-            $table->date('booking_date');
+            $table->dateTime('booking_date');
             $table->integer('seat_number')->unsigned();
             $table->enum('status',['pending','confirmed','complete','cancelled','failed'])->default('pending');
             $table->timestamps();
