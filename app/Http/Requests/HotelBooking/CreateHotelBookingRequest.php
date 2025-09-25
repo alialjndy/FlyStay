@@ -37,10 +37,10 @@ class CreateHotelBookingRequest extends FormRequest
     {
         $user = JWTAuth::parseToken()->authenticate();
         return [
-            'user_id'=>$user->hasRole('customer') ? 'nullable|exists:users,id' : 'required|exists:users,id',
-            'room_id'=>'required|exists:rooms,id',
-            'check_in_date'=>'required|date|after_or_equal:today',
-            'check_out_date'=>'required|date|after:check_in_date',
+            'user_id'         =>$user->hasRole('customer') ? 'nullable|exists:users,id' : 'required|exists:users,id',
+            'room_id'         =>'required|exists:rooms,id',
+            'check_in_date'   =>'required|date|after_or_equal:today',
+            'check_out_date'  =>'required|date|after:check_in_date',
         ];
     }
     public function withValidator(Validator $validator){

@@ -44,6 +44,13 @@ class HotelBooking extends Model
         $days = $this->check_in_date->diffInDays($this->check_out_date);
         return $this->room->price_per_night * max($days ,1);
     }
+    public function getCheckInDateAttribute($value){
+        return Carbon::parse($value)->toFormattedDateString();
+    }
+
+    public function getCheckOutDateAttribute($value){
+        return Carbon::parse($value)->toFormattedDateString();
+    }
     public function scopeFilter($query ,array $filters = []){
         return $query
             ->when($filters['status'] ?? null,function($query) use($filters){
@@ -58,5 +65,8 @@ class HotelBooking extends Model
                     Carbon::parse($filters['to_date'])->endOfDay()
                 ]);
             })->orderBy('booking_date',$filters['sort_type'] ?? 'desc');
+    }
+    public function ActivePayment(){
+        return $this->payments()->where('status','completed')->latest()->first();
     }
 }

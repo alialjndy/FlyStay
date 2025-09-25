@@ -22,7 +22,7 @@ class HotelBookingResource extends JsonResource
             'check_in_date'=>Carbon::parse($this->check_in_date)->toFormattedDateString(),
             'check_out_date'=>Carbon::parse($this->check_out_date)->toFormattedDateString(),
             'booking_date'=>Carbon::parse($this->booking_date)->toFormattedDateString(),
-            'amount'=> $this->getAmount(),
+            'price'=> $this->getAmount(),
             'status'=>$this->status,
             'duration'=>$this->check_in_date->diffInDays($this->check_out_date).' Days',
             'user_Info' => $this->user,

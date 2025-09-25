@@ -2,6 +2,7 @@
 namespace App\Services\HotelBooking;
 
 use App\Jobs\HotelBookingPendingEmailJob;
+use App\Jobs\SendHotelBookingCancelledEmailJob;
 use App\Models\HotelBooking;
 use App\Models\Room;
 use App\Services\Payment\RefundStripePaymentService;
@@ -63,20 +64,32 @@ class HotelBookingService{
             return $this->getMessage('error','you cannot execute this action.' ,403);
         }
 
+        // Cannot cancel if already failed, completed, or previously cancelled
         if(in_array($hotelBooking->status,['failed','complete','cancelled'])){
             return $this->getMessage('error' ,'Booking cannot be cancelled in its current state.', 400);
         }
+
         if($hotelBooking->status === 'confirmed'){
 
-            // fetch the payment associated with the booking.
-            $refundResult = $this->service->refunde($hotelBooking);
-
-            // Failed refund money
-            if($refundResult['status'] === 'failed'){
-                return $this->getMessage('error', 'Refund failed: '.$refundResult['message'], 400);
+            // If Payment method is cash
+            if($hotelBooking->ActivePayment()->method === 'cash'){
+                $message = 'Booking cancelled. Please visit our office for cash refund.';
+                dispatch(new SendHotelBookingCancelledEmailJob($hotelBooking->id));
             }
 
-            $message = 'Refund processed successfully.';
+            else if($hotelBooking->ActivePayment()->method === 'stripe'){
+
+                // fetch the payment associated with the booking.
+                $refundResult = $this->service->refunde($hotelBooking);
+
+                // Failed refund money
+                if($refundResult['status'] === 'failed'){
+                    return $this->getMessage('error', 'Refund failed: '.$refundResult['message'], 400);
+                }
+
+                $message = 'Refund processed successfully.';
+            }
+
         }
 
         $hotelBooking->update([
