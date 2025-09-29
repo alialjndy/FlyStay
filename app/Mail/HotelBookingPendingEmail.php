@@ -2,25 +2,27 @@
 
 namespace App\Mail;
 
+use App\Traits\LoadsHotelBookingData;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Address;
 
 class HotelBookingPendingEmail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels , LoadsHotelBookingData;
 
     /**
      * Create a new message instance.
      */
-    public array $data ;
+    public $bookingId ;
 
-    public function __construct(array $data)
+    public function __construct($bookingId)
     {
-        $this->data = $data ;
+        $this->bookingId = $bookingId ;
     }
 
     /**
@@ -29,9 +31,11 @@ class HotelBookingPendingEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address('no-reply@FlyStay.com','FlyStay'),
+            replyTo: [
+                new Address('Support@FlyStay.com','Support')
+            ] ,
             subject: 'Hotel Booking Pending Email',
-            from:'FlyStay@gmail.com',
-            replyTo: ['noreply@flyStay.com']
 
         );
     }
@@ -41,10 +45,12 @@ class HotelBookingPendingEmail extends Mailable
      */
     public function content(): Content
     {
+        $booking = $this->loadBookingData($this->bookingId);
+        $transformData = $this->transformBookingData($booking);
         return new Content(
             view: 'emails.hotel-booking-pending',
             with:[
-                'data'=>$this->data
+                'booking_data' => $transformData
             ]
         );
     }

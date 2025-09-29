@@ -14,7 +14,7 @@
         </header>
 
         <main class="email-body">
-            <h2>Hello {{ $data['user_name'] }},</h2>
+            <h2>Hello {{ $booking_data['user_name'] }},</h2>
             <p>
                 We are delighted to inform you that your booking with <strong>FlyStay</strong>
                 has been <span class="confirmed">Confirmed Successfully 🎉</span>.
@@ -26,19 +26,19 @@
                 <div class="info-list">
                     <div class="info-item">
                         <span class="label">Hotel Name</span>
-                        <span class="value">{{ $data['room_details']['Hotel Name'] }}</span>
+                        <span class="value">{{ $booking_data['room_details']['Hotel Name'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Room Type</span>
-                        <span class="value">{{ $data['room_details']['room_type'] }}</span>
+                        <span class="value">{{ $booking_data['room_details']['room_type'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Price/Night</span>
-                        <span class="value">${{ $data['room_details']['price_per_night'] }}</span>
+                        <span class="value">${{ $booking_data['room_details']['price_per_night'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Capacity</span>
-                        <span class="value">{{ $data['room_details']['capacity'] }} Guests</span>
+                        <span class="value">{{ $booking_data['room_details']['capacity'] }} Guests</span>
                     </div>
                 </div>
             </section>
@@ -49,11 +49,11 @@
                 <div class="info-list">
                     <div class="info-item">
                         <span class="label">Check-In</span>
-                        <span class="value">{{ $data['check_in_date'] }}</span>
+                        <span class="value">{{ $booking_data['check_in_date'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Check-Out</span>
-                        <span class="value">{{ $data['check_out_date'] }}</span>
+                        <span class="value">{{ $booking_data['check_out_date'] }}</span>
                     </div>
                 </div>
             </section>
@@ -64,19 +64,19 @@
                 <div class="info-list">
                     <div class="info-item">
                         <span class="label">Amount</span>
-                        <span class="value">${{ $data['Amount'] }}</span>
+                        <span class="value">${{ $payment_data['payment_amount'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Date</span>
-                        <span class="value">{{ $data['Date'] }}</span>
+                        <span class="value">{{ $payment_data['payment_date'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Payment Method</span>
-                        <span class="value">{{ $data['Payment_method'] }}</span>
+                        <span class="value">{{ $payment_data['payment_method'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Payment Status</span>
-                        <span class="value">{{ $data['Payment Status'] }}</span>
+                        <span class="value">{{ $payment_data['payment_status'] }}</span>
                     </div>
                 </div>
             </section>

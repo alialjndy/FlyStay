@@ -3,26 +3,27 @@
 namespace App\Mail;
 
 use App\Models\FlightBooking;
+use App\Traits\LoadsFlightBookingData;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Address ;
 use Illuminate\Support\Facades\Log;
 
 class FlightBookingPendingEmail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels , LoadsFlightBookingData;
 
     /**
      * Create a new message instance.
      */
-    public array $data ;
-    public function __construct(array $data)
+    public $bookingId ;
+    public function __construct($bookingId)
     {
-        $this->data = $data ;
-        // $this->paymentInfo = $paymentInfo ;
+        $this->bookingId = $bookingId ;
     }
 
     /**
@@ -31,9 +32,11 @@ class FlightBookingPendingEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address('no-reply@FlyStay.com','FlyStay'),
+            replyTo: [
+                new Address('support@FlyStay.com', 'support')
+            ],
             subject: 'Flight Booking Pending Email',
-            from:'flyStay@gmail.com',
-            replyTo:['noreply@FlyStay.com']
         );
     }
 
@@ -42,10 +45,12 @@ class FlightBookingPendingEmail extends Mailable
      */
     public function content(): Content
     {
+        $booking = $this->loadFlightBookingData($this->bookingId);
+        $bookingData = $this->transformBookingData($booking);
         return new Content(
             view: 'emails.flight-booking-pending',
             with:[
-                'data'=>$this->data
+                'booking_data'=>$bookingData
             ],
         );
     }

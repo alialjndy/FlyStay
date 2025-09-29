@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Mail\HotelBookingCancelledEmail;
 use App\Models\HotelBooking;
+use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -21,9 +22,11 @@ class SendHotelBookingCancelledEmailJob implements ShouldQueue
      * Create a new job instance.
      */
     protected $hotelBookingId ;
-    public function __construct($hotelBookingId)
+    protected $userId ;
+    public function __construct($userId , $hotelBookingId)
     {
         $this->hotelBookingId = $hotelBookingId ;
+        $this->userId = $userId ;
     }
 
     /**
@@ -31,22 +34,7 @@ class SendHotelBookingCancelledEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $hotelBooking = HotelBooking::with(['user', 'room'])->find($this->hotelBookingId);
-        $user = $hotelBooking->user;
-
-        $data = [
-            'user_name'     =>$user->name ,
-            'room_details'  =>[
-                'Hotel Name'        =>$hotelBooking->room->hotel->name,
-                'room_type'         =>$hotelBooking->room->room_type ,
-                'price_per_night'   =>$hotelBooking->room->price_per_night ,
-                'capacity'          =>$hotelBooking->room->capacity ,
-            ],
-            'check_in_date' =>$hotelBooking->check_in_date ,
-            'check_out_date'=>$hotelBooking->check_out_date ,
-            'status'        =>$hotelBooking->status ,
-
-        ] ;
-        Mail::to($user->email)->send(new HotelBookingCancelledEmail($data));
+        $user = User::findOrFail($this->userId);
+        Mail::to($user->email)->send(new HotelBookingCancelledEmail($this->hotelBookingId));
     }
 }

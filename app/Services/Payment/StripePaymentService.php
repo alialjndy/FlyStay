@@ -73,16 +73,15 @@ class StripePaymentService {
                 return $this->getMessage('error','User is not the owner of this booking.', 403);
             }
 
+            // Check if there is already an existing payment record for this user and booking
+            // If found and its status is "pending", stop and return an error response
+            $existingPayment = $modelInstance->ActivePayment();
+            if($existingPayment){
+                return $this->getMessage('failed','payment record already exists with status '. $existingPayment->status,403);
+            }
 
             // Handle Stripe payments (customer scenario)
             if($isCustomer){
-
-                // Check if there is already an existing payment record for this user and booking
-                // If found and its status is "pending", stop and return an error response
-                $existingPayment = $authUser->activePayment($modelClass , $id);
-                if($existingPayment){
-                    return $this->getMessage('failed','payment record already exists but with status pending',403);
-                }
 
                 // Convert amount from dollars to cents
                 $amountInCents = (int) ($modelInstance->getAmount() * 100);
@@ -117,10 +116,10 @@ class StripePaymentService {
 
                 if($booking instanceof FlightBooking){
                     dispatch(new PaymentStatusNotificationJob($paymentInfo->id , $agentId));
-                    dispatch(new FlightBookingConfirmedEmailJob($paymentInfo->id , $booking->id));
+                    dispatch(new FlightBookingConfirmedEmailJob($userId , $paymentInfo->id , $booking->id));
                 }elseif($booking instanceof HotelBooking){
                     dispatch(new PaymentStatusNotificationJob($paymentInfo->id , $agent->id));
-                    dispatch(new HotelBookingConfirmedEmailJob($paymentInfo->id , $booking->id));
+                    dispatch(new HotelBookingConfirmedEmailJob($userId,$paymentInfo->id , $booking->id));
                 }
             }
 
@@ -168,9 +167,9 @@ class StripePaymentService {
 
                             $classBaseName = class_basename($booking);
                             if($classBaseName === 'FlightBooking'){
-                                dispatch(new FlightBookingConfirmedEmailJob($payment->id , $booking->id));
+                                dispatch(new FlightBookingConfirmedEmailJob($payment->user_id,$payment->id , $booking->id));
                             }elseif($classBaseName === 'HotelBooking'){
-                                dispatch(new HotelBookingConfirmedEmailJob($payment->id , $booking->id));
+                                dispatch(new HotelBookingConfirmedEmailJob($payment->userId , $payment->id , $booking->id));
                             }
                         }
                     }

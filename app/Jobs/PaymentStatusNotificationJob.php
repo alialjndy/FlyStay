@@ -16,7 +16,7 @@ class PaymentStatusNotificationJob implements ShouldQueue
      * Create a new job instance.
      */
     public $paymentId;
-    public int $agentId ;
+    public $agentId ;
     public function __construct($paymentId , $agentId)
     {
         $this->paymentId = $paymentId ;

@@ -14,7 +14,7 @@
         </header>
 
         <main class="email-body">
-            <h2>Hello {{ $data['user_name'] }},</h2>
+            <h2>Hello {{ $booking_data['user_name'] }},</h2>
             <p>
                 Thank you for choosing <strong>FlyStay</strong>.
                 Your hotel booking is currently
@@ -26,19 +26,19 @@
                 <div class="info-list">
                     <div class="info-item">
                         <span class="label">Hotel Name</span>
-                        <span class="value">{{ $data['room_details']['Hotel Name'] }}</span>
+                        <span class="value">{{ $booking_data['room_details']['Hotel Name'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Room Type</span>
-                        <span class="value">{{ $data['room_details']['room_type'] }}</span>
+                        <span class="value">{{ $booking_data['room_details']['room_type'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Price/Night</span>
-                        <span class="value">${{ $data['room_details']['price_per_night'] }}</span>
+                        <span class="value">${{ $booking_data['room_details']['price_per_night'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Capacity</span>
-                        <span class="value">{{ $data['room_details']['capacity'] }} Guests</span>
+                        <span class="value">{{ $booking_data['room_details']['capacity'] }} Guests</span>
                     </div>
                 </div>
             </section>
@@ -48,15 +48,15 @@
                 <div class="info-list">
                     <div class="info-item">
                         <span class="label">Check-In</span>
-                        <span class="value">{{ $data['check_in_date'] }}</span>
+                        <span class="value">{{ $booking_data['check_in_date'] }}</span>
                     </div>
                     <div class="info-item">
                         <span class="label">Check-Out</span>
-                        <span class="value">{{ $data['check_out_date'] }}</span>
+                        <span class="value">{{ $booking_data['check_out_date'] }}</span>
                     </div>
                     <div class="info-item total">
                         <span class="label">Total Price</span>
-                        <span class="value">${{ $data['total_price'] }}</span>
+                        <span class="value">${{ $booking_data['total_price'] }}</span>
                     </div>
                 </div>
             </section>

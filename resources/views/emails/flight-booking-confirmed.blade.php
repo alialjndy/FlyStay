@@ -17,20 +17,20 @@
 
         <!-- Content -->
         <div class="content">
-            <h2>Hello {{ $data['user_name'] }},</h2>
+            <h2>Hello {{ $booking_data['user_name'] }},</h2>
             <p>Your flight booking has been <strong>confirmed</strong>. Below are your booking and payment details:</p>
 
             <!-- Booking Details -->
             <div class="section">
                 <h3>Booking Details</h3>
                 <ul class="details-list">
-                    <li><strong>Flight Number:</strong> {{ $data['flight_number'] }}</li>
-                    <li><strong>Cabin Class:</strong> {{ $data['flightCabin'] }}</li>
-                    <li><strong>Departure:</strong> {{ $data['departure'] }}</li>
-                    <li><strong>Arrival:</strong> {{ $data['arrival'] }}</li>
-                    <li><strong>Booking Date:</strong> {{ $data['booking_date'] }}</li>
-                    <li><strong>Seat Number:</strong> {{ $data['seat_number'] }}</li>
-                    <li><strong>Status:</strong> {{ $data['status'] }}</li>
+                    <li><strong>Flight Number:</strong> {{ $booking_data['flight_number'] }}</li>
+                    <li><strong>Cabin Class:</strong> {{ $booking_data['flightCabin'] }}</li>
+                    <li><strong>Departure:</strong> {{ $booking_data['departure'] }}</li>
+                    <li><strong>Arrival:</strong> {{ $booking_data['arrival'] }}</li>
+                    <li><strong>Booking Date:</strong> {{ $booking_data['booking_date'] }}</li>
+                    <li><strong>Seat Number:</strong> {{ $booking_data['seat_number'] }}</li>
+                    <li><strong>Status:</strong> {{ $booking_data['status'] }}</li>
                 </ul>
             </div>
 
@@ -38,10 +38,10 @@
             <div class="section">
                 <h3>Payment Details</h3>
                 <ul class="details-list">
-                    <li><strong>Amount:</strong> {{ $data['payment_amount'] }}</li>
-                    <li><strong>Date:</strong> {{ $data['payment_date'] }}</li>
-                    <li><strong>Method:</strong> {{ $data['payment_method'] }}</li>
-                    <li><strong>Status:</strong> {{ $data['payment_status'] }}</li>
+                    <li><strong>Amount:</strong> {{ $payment_data['payment_amount'] }}</li>
+                    <li><strong>Date:</strong> {{ $payment_data['payment_date'] }}</li>
+                    <li><strong>Method:</strong> {{ $payment_data['payment_method'] }}</li>
+                    <li><strong>Status:</strong> {{ $payment_data['payment_status'] }}</li>
                 </ul>
             </div>
 
@@ -50,7 +50,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            &copy; {{ date('Y') }} Flight Booking System. All rights reserved.
+            &copy; {{ date('Y') }} FlyStay System. All rights reserved.
         </div>
     </div>
 </body>

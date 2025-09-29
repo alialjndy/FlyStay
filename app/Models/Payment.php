@@ -36,10 +36,10 @@ class Payment extends Model
     public function user(){
         return $this->belongsTo(User::class , 'user_id');
     }
-    public function getDateAttribute($value)
-    {
-        return Carbon::parse($value)->toFormattedDateString();
-    }
+    // public function getDateAttribute($value)
+    // {
+    //     return Carbon::parse($value);
+    // }
     public function scopeFilter($query , $filters){
         return $query
             ->when($filters['status'] ?? null ,function($query , $status){

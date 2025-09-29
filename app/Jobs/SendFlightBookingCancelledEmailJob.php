@@ -36,23 +36,6 @@ class SendFlightBookingCancelledEmailJob implements ShouldQueue
     public function handle(): void
     {
         $user = User::findOrFail($this->userId);
-        // Retrieve booking with important relations (user, flight details, airports)
-        $booking = FlightBooking::with([
-            'user',
-            'flightCabin.flight.departureAirport.city',
-            'flightCabin.flight.departureAirport.country',
-            'flightCabin.flight.arrivalAirport.city',
-            'flightCabin.flight.arrivalAirport.country',
-        ])->findOrFail($this->bookingId);
-
-        $flight = $booking->flightCabin->flight ;
-        $data = [
-            'user'          =>$booking->user->name ,
-            'flightCabin'   =>$booking->flightCabin->class_name ,
-            'flight_number' =>$booking->flightCabin->flight->flight_number ,
-            'departure'     =>$flight->departureAirport->city->name . ', ' . $flight->departureAirport->country->name,
-            'arrival'       =>$flight->arrivalAirport->city->name . ', ' . $flight->arrivalAirport->country->name,
-        ];
-        Mail::to($user->email)->send(new FlightBookingCancelledEmail($data));
+        Mail::to($user->email)->send(new FlightBookingCancelledEmail($this->bookingId));
     }
 }

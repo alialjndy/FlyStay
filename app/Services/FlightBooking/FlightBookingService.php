@@ -86,7 +86,7 @@ class FlightBookingService{
         DB::beginTransaction();
         try{
             $flightBooking = FlightBooking::create($bookingData);
-            dispatch(new FlightBookingPendingEmailJob($flightBooking->id));
+            dispatch(new FlightBookingPendingEmailJob($user->id , $flightBooking->id));
             $flightCabin->decrement('available_seats');
             DB::commit();
             return [

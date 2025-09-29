@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -40,7 +41,7 @@ class PaymentStatusNotification extends Notification
             ->greeting('Hello ' . $notifiable->name)
             ->line('Your payment of ' . $this->payment->amount . ' using ' . $this->payment->method . ' has been processed.')
             ->line('Payment Status: ' . ucfirst($this->payment->status))
-            ->line('Date: ' . $this->payment->date->format('Y-m-d H:i:s'))
+            ->line('Date: ' . Carbon::parse($this->payment->date)->toDateTimeString())
             ->action('View Details', url('/payments/' . $this->payment->id))
             ->line('Thank you for using our application!');
     }

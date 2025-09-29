@@ -29,16 +29,20 @@ class HotelBookingService{
      */
     public function createBooking(array $data){
         $user = JWTAuth::parseToken()->authenticate();
-        $userBookingHotel = $user->hasRole('customer') ? $user->id : $data['user_id'];
+        $userHotelBookingId = $user->hasRole('customer') ? $user->id : $data['user_id'];
+
+        // create the booking
         $hotelBooking = HotelBooking::create([
-            'user_id'         => $userBookingHotel,
+            'user_id'         => $userHotelBookingId,
             'room_id'         => $data['room_id'],
             'check_in_date'   => $data['check_in_date'],
             'check_out_date'  => $data['check_out_date'],
             'booking_date'    => Carbon::now() , // When the record was created in the database
             'status'          => 'pending'
         ]);
-        dispatch(new HotelBookingPendingEmailJob($hotelBooking->id));
+
+        // send pending email email
+        dispatch(new HotelBookingPendingEmailJob($userHotelBookingId , $hotelBooking->id));
         return $hotelBooking ;
     }
     /**
@@ -74,7 +78,7 @@ class HotelBookingService{
             // If Payment method is cash
             if($hotelBooking->ActivePayment()->method === 'cash'){
                 $message = 'Booking cancelled. Please visit our office for cash refund.';
-                dispatch(new SendHotelBookingCancelledEmailJob($hotelBooking->id));
+                dispatch(new SendHotelBookingCancelledEmailJob($hotelBooking->user->id , $hotelBooking->id));
             }
 
             else if($hotelBooking->ActivePayment()->method === 'stripe'){

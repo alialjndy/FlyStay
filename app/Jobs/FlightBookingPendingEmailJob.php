@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Mail\FlightBookingPendingEmail;
 use App\Models\FlightBooking;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,9 +25,11 @@ class FlightBookingPendingEmailJob implements ShouldQueue
      * Create a new job instance.
      */
     public $bookingId;
-    public function __construct($bookingId  )
+    protected $userId ;
+    public function __construct($userId , $bookingId)
     {
         $this->bookingId = $bookingId ;
+        $this->userId = $userId ;
     }
 
     /**
@@ -34,25 +37,7 @@ class FlightBookingPendingEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $booking = FlightBooking::with([
-            'user',
-            'flightCabin.flight.departureAirport.city',
-            'flightCabin.flight.departureAirport.country',
-            'flightCabin.flight.arrivalAirport.city',
-            'flightCabin.flight.arrivalAirport.country',
-        ])->findOrFail($this->bookingId);
-        $flight = $booking->flightCabin->flight ;
-
-        $data = [
-            'user_name'=>$booking->user->name ,
-            'flightCabin'=>$booking->flightCabin->class_name ,
-            'flight_number' => $flight->flight_number,
-            'departure' => $flight->departureAirport->city->name . ', ' . $flight->departureAirport->country->name,
-            'arrival' => $flight->arrivalAirport->city->name . ', ' . $flight->arrivalAirport->country->name,
-            'booking_date' => Carbon::parse($booking->booking_date)->format('Y-m-d H:i:s'),
-            'seat_number'=>$booking->seat_number ,
-            'status'=>$booking->status ,
-        ];
-        Mail::to($booking->user->email)->send(new FlightBookingPendingEmail($data));
+        $user = User::findOrFail($this->userId);
+        Mail::to($user->email)->send(new FlightBookingPendingEmail($this->bookingId));
     }
 }

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Mail\HotelBookingConfirmedEmail;
 use App\Models\HotelBooking;
 use App\Models\Payment;
+use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -24,10 +25,12 @@ class HotelBookingConfirmedEmailJob implements ShouldQueue
      */
     public $paymentId ;
     public $bookingId ;
-    public function __construct($paymentId , $bookingId)
+    public $userId ;
+    public function __construct($userId , $paymentId , $bookingId)
     {
         $this->paymentId = $paymentId ;
         $this->bookingId = $bookingId ;
+        $this->userId = $userId ;
     }
 
     /**
@@ -35,30 +38,8 @@ class HotelBookingConfirmedEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $payment = Payment::findOrFail($this->paymentId);
-        $booking = HotelBooking::findOrFail($this->bookingId);
-        $user = $booking->user ;
-        $room = $booking->room ;
-
-        $data = [
-            'user_name'=>$user->name ,
-            'room_details'=>[
-                'Hotel Name'=>$room->hotel->name,
-                'room_type'=>$room->room_type ,
-                'price_per_night'=>$room->price_per_night ,
-                'capacity'=>$room->capacity ,
-            ],
-            'check_in_date'=>$booking->check_in_date ,
-            'check_out_date'=>$booking->check_out_date ,
-
-            //Payment Info
-
-            'Amount'=>$payment->amount  ,
-            'Date'=>$payment->date ,
-            'Payment_method'=>$payment->method   ,
-            'Payment Status'=>$payment->status ,
-        ];
-        Mail::to($user->email)->send(new HotelBookingConfirmedEmail($data));
+        $user = User::findOrFail($this->userId);
+        Mail::to($user->email)->send(new HotelBookingConfirmedEmail($this->bookingId , $this->paymentId));
 
     }
 }

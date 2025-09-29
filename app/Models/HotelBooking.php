@@ -40,17 +40,18 @@ class HotelBooking extends Model
     public function room(){
         return $this->belongsTo(Room::class,'room_id');
     }
-    public function getAmount(){
-        $days = $this->check_in_date->diffInDays($this->check_out_date);
-        return $this->room->price_per_night * max($days ,1);
+    public function getAmount(): float|int{
+        // $days = $this->check_in_date->($this->check_out_date);
+        $days = Carbon::parse($this->check_in_date)->diffInDays(Carbon::parse($this->check_out_date));
+        return floor($this->room->price_per_night * max($days ,1));
     }
-    public function getCheckInDateAttribute($value){
-        return Carbon::parse($value)->toFormattedDateString();
-    }
+    // public function getCheckInDateAttribute($value){
+    //     return Carbon::parse($value);
+    // }
 
-    public function getCheckOutDateAttribute($value){
-        return Carbon::parse($value)->toFormattedDateString();
-    }
+    // public function getCheckOutDateAttribute($value){
+    //     return Carbon::parse($value);
+    // }
     public function scopeFilter($query ,array $filters = []){
         return $query
             ->when($filters['status'] ?? null,function($query) use($filters){

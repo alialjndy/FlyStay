@@ -17,7 +17,7 @@
 
         <!-- Greeting -->
         <section class="email-content">
-            <p>Hello <strong>{{ $data['user_name'] }}</strong>,</p>
+            <p>Hello <strong>{{ $booking_data['user_name'] }}</strong>,</p>
             <p>We have successfully received your flight booking. Here are your booking details:</p>
         </section>
 
@@ -25,31 +25,31 @@
         <section class="booking-details">
             <div class="booking-item">
                 <span class="label">Flight Cabin:</span>
-                <span class="value">{{ $data['flightCabin'] }}</span>
+                <span class="value">{{ $booking_data['flightCabin'] }}</span>
             </div>
             <div class="booking-item">
                 <span class="label">Flight Number:</span>
-                <span class="value">{{ $data['flight_number'] }}</span>
+                <span class="value">{{ $booking_data['flight_number'] }}</span>
             </div>
             <div class="booking-item">
                 <span class="label">Departure:</span>
-                <span class="value">{{ $data['departure'] }}</span>
+                <span class="value">{{ $booking_data['departure'] }}</span>
             </div>
             <div class="booking-item">
                 <span class="label">Arrival:</span>
-                <span class="value">{{ $data['arrival'] }}</span>
+                <span class="value">{{ $booking_data['arrival'] }}</span>
             </div>
             <div class="booking-item">
                 <span class="label">Date:</span>
-                <span class="value">{{ $data['booking_date'] }}</span>
+                <span class="value">{{ $booking_data['booking_date'] }}</span>
             </div>
             <div class="booking-item">
                 <span class="label">Seat Number:</span>
-                <span class="value">{{ $data['seat_number'] }}</span>
+                <span class="value">{{ $booking_data['seat_number'] }}</span>
             </div>
             <div class="booking-item">
                 <span class="label">Booking Status:</span>
-                <span class="value">{{ $data['status'] }}</span>
+                <span class="value">{{ $booking_data['status'] }}</span>
             </div>
         </section>
 
