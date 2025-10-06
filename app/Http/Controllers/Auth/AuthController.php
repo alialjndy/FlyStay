@@ -8,10 +8,12 @@ use App\Http\Requests\Auth\PhoneNumberRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Services\Auth\AuthService;
+use App\Traits\ManageCache;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
+    use ManageCache ;
     protected $authService ;
     public function __construct(AuthService $authService){
         $this->authService = $authService ;
@@ -23,6 +25,7 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $request){
         $data = $this->authService->register($request->validated());
+        $this->clearCache('users');
         return $this->success(['token'=>$data['token']] , 201,$data['message']);
     }
     /**

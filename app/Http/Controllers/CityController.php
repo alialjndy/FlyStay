@@ -5,15 +5,27 @@ namespace App\Http\Controllers;
 use App\Http\Requests\City\FilterCityRequest;
 use App\Models\City;
 use Illuminate\Http\Request;
+use App\Traits\ManageCache ;
+use Illuminate\Support\Facades\Cache;
 
 class CityController extends Controller
 {
+    use ManageCache;
     /**
      * Display a listing of the resource.
      */
     public function index(FilterCityRequest $request)
     {
-        $cities = City::filter($request->validated())->with(['country','airports','hotels'])->paginate(10);
+        $cityName = $request->validated()['name'] ?? 'all';
+        $cacheKey = 'all_cities_' . $cityName ;
+
+        $cities = $this->getFromCache('cities' , $cacheKey) ??
+            $this->addToCache(
+                'cities',
+                $cacheKey ,
+                City::filter($request->validated())->with(['country','airports','hotels'])->paginate(10) ,
+                now()->addDays(15) );
+
         return self::paginated($cities);
     }
     /**
@@ -21,7 +33,14 @@ class CityController extends Controller
      */
     public function show(City $city)
     {
-        $city = $city->load(['country','airports','hotels']);
+        $cacheKey = 'city_' . $city->id ;
+        $city = $this->getFromCache('cities' , $cacheKey) ??
+            $this->addToCache(
+                'cities',
+                $cacheKey ,
+                $city->load(['country','airports','hotels']) ,
+                now()->addDays(15));
+
         return self::success([$city]);
     }
 }

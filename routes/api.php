@@ -25,11 +25,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\StripePaymentController;
 use App\Http\Controllers\UserController;
-use App\Http\Middleware\EnsureEmailVerified;
-use App\Models\Country;
-use App\Models\User;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\Request;
+use App\Http\Controllers\WeatherController;
+use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -45,7 +42,6 @@ Route::middleware(['throttle:api'])->group(function () {
 Route::middleware('auth:api')->controller(AuthController::class)->group(function () {
     Route::get('/me', 'me');
     Route::post('/logout', 'logout');
-    // Route::post('complete-profile', 'completeProfile');
     Route::post('change-password',[PasswordResetController::class,'changePassword']);
 });
 // Protected Routes (requires API authentication)
@@ -55,17 +51,21 @@ Route::middleware(['auth:api','verified'])->group(function () {
     Route::post('complete-profile',[UserController::class,'completeProfile']);
     Route::put('update-profile',[UserController::class,'update']);
 
-    Route::resource('permission', PermissionController::class);
-    Route::post('assign-permission-to-user', [AdminPermissionController::class, 'assignPermissionToUser']);
-    Route::post('assign-permission-to-role', [AdminPermissionController::class, 'assignPermissionToRole']);
-    Route::post('remove-permission-from-user', [AdminPermissionController::class, 'removePermissionFromUser']);
-    Route::post('remove-permission-from-role', [AdminPermissionController::class, 'removePermissionFromRole']);
+    // Admin only can execute this routes.
+    Route::middleware(AdminMiddleware::class)->group(function(){
 
-    //
-    Route::resource('role', RoleController::class);
-    Route::post('assign-role', [AdminRoleController::class, 'assignRoleToUser']);
-    Route::post('remove-role', [AdminRoleController::class, 'removeRoleFromUser']);
+        // Permission management
+        Route::resource('permission', PermissionController::class);
+        Route::post('assign-permission-to-user', [AdminPermissionController::class, 'assignPermissionToUser']);
+        Route::post('assign-permission-to-role', [AdminPermissionController::class, 'assignPermissionToRole']);
+        Route::post('remove-permission-from-user', [AdminPermissionController::class, 'removePermissionFromUser']);
+        Route::post('remove-permission-from-role', [AdminPermissionController::class, 'removePermissionFromRole']);
 
+        // Role management
+        Route::resource('role', RoleController::class);
+        Route::post('assign-role', [AdminRoleController::class, 'assignRoleToUser']);
+        Route::post('remove-role', [AdminRoleController::class, 'removeRoleFromUser']);
+    });
 
     Route::get('/get-all-cities', [CityController::class, 'index']);
     Route::get('/show-city/{city}', [CityController::class, 'show']);
@@ -101,6 +101,8 @@ Route::middleware(['auth:api','verified'])->group(function () {
     Route::post('payments/{type}/{id}', [StripePaymentController::class, 'createPaymentIntent']);
 
     Route::post('favorite/{type}/{id}', [FavoriteController::class, 'handle']);
+
+    Route::post('get_weather',[WeatherController::class, 'getWeatherInfo']);
 });
 Route::post('stripe/webhook', [StripePaymentController::class, 'handleWebhook']);
 

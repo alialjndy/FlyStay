@@ -33,7 +33,7 @@ class Airport extends Model
         );
     }
     public function scopeFilter($query, $countryName) {
-        return $query->when($countryName, function($query) use ($countryName) {
+        return $query->when($countryName ?? null, function($query) use ($countryName) {
             $query->whereHas('country', function($q) use ($countryName) {
                 $q->where('countries.name', 'LIKE', "%{$countryName}%");
             });

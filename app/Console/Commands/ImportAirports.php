@@ -63,7 +63,7 @@ class ImportAirports extends Command
             );
 
             $imported++;
-            if($imported == 150) break ;
+            // if($imported == 150) break ;
         }
         $this->info("Imported: $imported Airports");
         // $this->info("Skipped: $skipped Airports");

@@ -6,10 +6,12 @@ use App\Http\Requests\Auth\PhoneNumberRequest;
 use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Models\User;
 use App\Services\User\UserService;
+use App\Traits\ManageCache;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    use ManageCache ;
     protected $userService ;
     public function __construct(UserService $userService){
         $this->userService = $userService ;
@@ -44,6 +46,7 @@ class UserController extends Controller
     public function update(UpdateProfileRequest $request, User $user)
     {
         $UpdatedUser = $this->userService->updateProfile($request->validated());
+        $this->clearCache('users');
         return $UpdatedUser['status'] === 'success' ? self::success([$UpdatedUser['data']], 200 , $UpdatedUser['message']) :
         self::error('Error Occurred','error',400,[$UpdatedUser['errors']]);
     }
@@ -57,6 +60,7 @@ class UserController extends Controller
     }
     public function completeProfile(PhoneNumberRequest $phoneRequest){
         $result = $this->userService->completeProfile($phoneRequest->validated());
+        $this->clearCache('users');
         return $this->success([],200,$result['message']);
     }
 }

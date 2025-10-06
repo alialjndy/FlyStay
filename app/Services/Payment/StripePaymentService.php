@@ -75,7 +75,7 @@ class StripePaymentService {
 
             // Check if there is already an existing payment record for this user and booking
             // If found and its status is "pending", stop and return an error response
-            $existingPayment = $modelInstance->ActivePayment();
+            $existingPayment = $modelInstance->isPaid();
             if($existingPayment){
                 return $this->getMessage('failed','payment record already exists with status '. $existingPayment->status,403);
             }

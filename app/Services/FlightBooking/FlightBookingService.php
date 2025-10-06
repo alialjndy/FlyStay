@@ -4,6 +4,7 @@ namespace App\Services\FlightBooking;
 use App\Jobs\FlightBookingPendingEmailJob;
 use App\Jobs\SendFlightBookingCancelledEmailJob;
 use App\Jobs\SendFlightBookingPendingEmailJob;
+use App\Jobs\SendWeatherEmailJob;
 use App\Models\FlightBooking;
 use App\Models\FlightCabin;
 use App\Models\User;
@@ -87,6 +88,15 @@ class FlightBookingService{
         try{
             $flightBooking = FlightBooking::create($bookingData);
             dispatch(new FlightBookingPendingEmailJob($user->id , $flightBooking->id));
+
+            // Send Weather Email
+            dispatch(new SendWeatherEmailJob(
+                $user->id ,
+                $flightBooking->DestinationCity()->name ,
+                $flightBooking->flightCabin->flight->arrival_time
+            ));
+
+            //
             $flightCabin->decrement('available_seats');
             DB::commit();
             return [

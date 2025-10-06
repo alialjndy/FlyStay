@@ -36,21 +36,21 @@ class Room extends Model
     }
     public function scopeFilter($query ,$filters){
         return $query
-            ->when($filters['hotel_name'],function($query , $hotel_name){
+            ->when($filters['hotel_name'] ?? null ,function($query , $hotel_name){
                 $query->whereHas('hotel',function($q) use ($hotel_name){
                     $q->where('name','like',"%{$hotel_name}%");
                 });
             })
-            ->when($filters['min_price'],function($query , $min_price){
+            ->when($filters['min_price'] ?? null ,function($query , $min_price){
                 $query->where('price_per_night','>=',$min_price);
             })
-            ->when($filters['max_price'],function($query , $max_price){
+            ->when($filters['max_price'] ?? null ,function($query , $max_price){
                 $query->where('price_per_night','<=',$max_price);
             })
-            ->when($filters['min_price'] && $filters['max_price'],function($query , $min_price , $max_price){
+            ->when( ($filters['min_price'] ?? null) && ($filters['max_price'] ?? null) ,function($query , $min_price , $max_price){
                 $query->whereBetween('price_per_night',$min_price  ,$max_price);
             })
-            ->when($filters['capacity'],function($query , $capacity){
+            ->when($filters['capacity'] ?? null ,function($query , $capacity){
                 $query->where('capacity','=',$capacity);
             });
     }

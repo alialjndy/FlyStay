@@ -69,4 +69,7 @@ class FlightBooking extends Model
     public function ActivePayment(){
         return $this->payments()->where('status','completed')->first();
     }
+    public function isPaid(){
+        return $this->Payments()->whereIn('status',['completed','pending'])->first();
+    }
 }

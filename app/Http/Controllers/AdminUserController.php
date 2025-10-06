@@ -5,16 +5,27 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\FilterAdminUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Traits\ManageCache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AdminUserController extends Controller
 {
+    use ManageCache ;
     /**
      * @param \App\Http\Requests\User\FilterAdminUserRequest $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function index(FilterAdminUserRequest $request){
-        $allUsers = User::filterRole($request->role_name)->with(['roles:id,name','permissions:id,name','favorites'])->paginate(10);
+        $role_name = data_get($request->validated() , 'role_name' , 'all');
+        $cacheKey = 'all_users_'.$role_name;
+
+        $allUsers = $this->getFromCache('users' , $cacheKey)
+            ?? $this->addToCache(
+                'users',
+                'all_users_'.$request->role_name,
+                User::filterRole($request->role_name ?? null )->with(['roles:id,name','permissions:id,name','favorites'])->paginate(10),
+                600);
         return self::paginated($allUsers, UserResource::class);
     }
     /**
@@ -29,7 +40,14 @@ class AdminUserController extends Controller
      */
     public function show(User $user){
         $this->authorize('view', $user);
-        $user = $user->load(['roles','permissions','favorites']);
+
+        $cacheKey = 'user_'.$user->id ;
+        $user = $this->getFromCache('users',$cacheKey) ??
+            $this->addToCache(
+                'users',
+                $cacheKey,
+                $user->load(['roles','permissions','favorites']),
+                600);
         return self::success([new UserResource($user)]);
     }
     /**
@@ -45,6 +63,7 @@ class AdminUserController extends Controller
     public function destroy(User $user){
         $this->authorize('delete', $user);
         $user->delete();
+        $this->clearCache('users');
         return self::success([null]);
     }
 }
