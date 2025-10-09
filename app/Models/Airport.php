@@ -8,6 +8,7 @@ class Airport extends Model
 {
     //
     protected $fillable = [
+        'id',
         'name',
         'city_id',
         'IATA_code'
