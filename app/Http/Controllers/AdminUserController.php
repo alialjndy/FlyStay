@@ -13,6 +13,7 @@ class AdminUserController extends Controller
 {
     use ManageCache ;
     /**
+     * Retrive all users with roles relationship and store result in cache.
      * @param \App\Http\Requests\User\FilterAdminUserRequest $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
@@ -35,6 +36,7 @@ class AdminUserController extends Controller
         return self::error('unSupported Yet!','error',501);
     }
     /**
+     * Retrive user information with role relationship and store result in cache.
      * @param \App\Models\User $user
      * @return mixed|\Illuminate\Http\JsonResponse
      */
@@ -57,6 +59,8 @@ class AdminUserController extends Controller
         return self::error('unSupported Yet!','error',501);
     }
     /**
+     * Delete user from DB.
+     * Delete cache associated with users.
      * @param \App\Models\User $user
      * @return mixed|\Illuminate\Http\JsonResponse
      */

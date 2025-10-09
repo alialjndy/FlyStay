@@ -46,6 +46,8 @@ Route::middleware('auth:api')->controller(AuthController::class)->group(function
 });
 // Protected Routes (requires API authentication)
 Route::middleware(['auth:api','verified'])->group(function () {
+
+    // Mange User Route (Admin Only)
     Route::resource('user', AdminUserController::class);
 
     Route::post('complete-profile',[UserController::class,'completeProfile']);

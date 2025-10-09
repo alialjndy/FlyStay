@@ -30,7 +30,7 @@ class AssignPermissionRequest extends FormRequest
     {
         return [
             'permission_name'=>'required|exists:permissions,name',
-            'user_id'=>'nullable|exists:users,id',
+            'user_id'=>'nullable|exists:users,id', // nullable because the permission can be assigned either to a role or to a specific user
             'role_name'=>'nullable|exists:roles,name'
         ];
     }
