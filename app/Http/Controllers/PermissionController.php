@@ -48,7 +48,7 @@ class PermissionController extends Controller
 
         $this->clearCache('permissions'); // Clear permission cache to ensure consistency.
 
-        return self::success([$permission]);
+        return self::success([$permission] , 201);
     }
     /**
      * Retrieve details of a specific permission, including its associated roles.
