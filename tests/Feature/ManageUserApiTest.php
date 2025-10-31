@@ -11,10 +11,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class ManageUserApiTest extends TestCase
 {
     private function getToken(){
-        $user = User::factory()->create();
-        $user->assignRole('admin');
-
-        $this->actingAs($user);
+        $user = $this->getUser('admin');
         $token = JWTAuth::fromUser($user);
         return $token ;
     }
@@ -26,6 +23,7 @@ class ManageUserApiTest extends TestCase
         $response = $this->withHeaders(['Authorization' => "Bearer $token"])->getJson('/api/user');
         $response->assertStatus(200);
     }
+    // get a specific user info
     public function test_get_user_info(){
         $token = $this->getToken();
         $response = $this->withHeaders(['Authorization' => "Bearer $token"])->getJson('/api/user/2');

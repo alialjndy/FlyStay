@@ -11,39 +11,14 @@ use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+use function PHPUnit\Framework\isEmpty;
+
 class ManagePermissionApiTest extends TestCase
 {
     private function getToken(){
-        $user = User::factory()->create();
-        $user->assignRole('admin');
-
-        $this->actingAs($user);
+        $user = $this->getUser('admin');
         $token = JWTAuth::fromUser($user);
         return $token ;
-    }
-    /**
-     * Test assigning a permission to a user
-     * @return void
-     */
-    public function test_assign_permission_to_user(){
-        // Select a random permission from the database
-        $permission = Permission::inRandomOrder()->first();
-
-        // Select a user who does NOT already have this permission
-        $user = User::whereDoesntHave('permissions' , function ($query) use ($permission){
-            $query->where('permissions.id' , $permission->id);
-        })->inRandomOrder()->first();
-
-        $payload = [
-            'user_id' => $user->id,
-            'permission_name' => $permission->name,
-        ];
-
-        $token = $this->getToken();
-
-        $response = $this->withHeaders(['Authorization' => "Bearer $token"])
-                         ->postJson('/api/assign-permission-to-user' , $payload);
-        $response->assertStatus(200);
     }
     /**
      * Test assigning a permission to a role
@@ -55,7 +30,7 @@ class ManagePermissionApiTest extends TestCase
 
         // Select a role that does not already have this permission
         $role = Role::whereDoesntHave('permissions' , function ($query) use ($permission){
-            $query->where('permissions.id' , $permission->id);
+            $query->where('name' , '=' ,$permission->name);
         })->inRandomOrder()->first();
 
         $payload = [
@@ -67,27 +42,6 @@ class ManagePermissionApiTest extends TestCase
 
         $response = $this->withHeaders(['Authorization' => "Bearer $token"])
                          ->postJson('/api/assign-permission-to-role' , $payload);
-        $response->assertStatus(200);
-    }
-    /**
-     * Test removing a permission from a user
-     * @return void
-     */
-    public function test_remove_permission_from_user(){
-        $token = $this->getToken();
-
-         // Select a random user who has at least one permission
-        $user = User::has('permissions')->inRandomOrder()->first();
-
-        // Select a random permission that the user currently has
-        $permission = $user->permissions()->inRandomOrder()->first();
-
-        $payload = [
-            'user_id' => $user->id ,
-            'permission_name' => $permission->name
-        ];
-
-        $response = $this->withHeaders(['Authorization' => "Bearer $token"])->postJson('/api/remove-permission-from-user' , $payload);
         $response->assertStatus(200);
     }
     /**

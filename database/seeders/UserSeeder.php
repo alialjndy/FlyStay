@@ -17,31 +17,36 @@ class UserSeeder extends Seeder
             'name'=>'Albrens1',
             'email'=>'alialjndy2@gmail.com',
             'phone_number'=>'0998680361',
-            'password'=>bcrypt('strongPass123@')
+            'password'=>bcrypt('strongPass123@') ,
+            'email_verified_at' => now()
         ]);
         $customerUser = User::create([
             'name'=>'Albrens2',
             'email'=>'alialjndy874@gmail.com',
             'phone_number'=>'0998680360',
             'password'=>bcrypt('strongPass123@'),
+            'email_verified_at' => now()
         ]);
         $flightAgentUser = User::create([
             'name'=>'flightAgent',
             'email'=>'flightAgent@gmail.com',
             'phone_number'=>'000000001',
             'password'=>bcrypt('strongPass123@'),
+            'email_verified_at' => now()
         ]);
         $hotelAgent = User::create([
             'name'=>'Hotel Agent' ,
             'email'=>'hotelAgent@gmail.com',
             'phone_number'=>'0999999999',
-            'password'=>bcrypt('strongPass123@')
+            'password'=>bcrypt('strongPass123@') ,
+            'email_verified_at' => now()
         ]);
         $finance_officer = User::create([
             'name'=>'finance officer' ,
             'email'=>'financeOfficer@gmail.com',
             'phone_number'=>'0999999990',
-            'password'=>bcrypt('strongPass123@')
+            'password'=>bcrypt('strongPass123@'),
+            'email_verified_at' => now()
         ]);
         $flightAgentUser->assignRole('flight_agent');
         $adminUser->assignRole('admin');

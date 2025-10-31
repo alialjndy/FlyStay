@@ -8,9 +8,7 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 
 class WeatherService{
-    public static function getWeatherInfo(array $data){
-        $city = $data['city'] ;
-        $targetDate  = $data['targetDate'];
+    public static function getWeatherInfo($city , $targetDate){
         $apiKey = config('services.weather.key');
 
         $diffDays = now()->diffInDays(Carbon::parse($targetDate));

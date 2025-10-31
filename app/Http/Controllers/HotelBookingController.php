@@ -37,7 +37,7 @@ class HotelBookingController extends Controller
     {
         $this->authorize('create',HotelBooking::class);
         $hotelBooking = $this->service->createBooking($request->validated());
-        return self::success([new HotelBookingResource($hotelBooking)]);
+        return self::success([new HotelBookingResource($hotelBooking)] , 201);
     }
 
     /**

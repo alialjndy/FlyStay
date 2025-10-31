@@ -78,6 +78,9 @@ class User extends Authenticatable implements JWTSubject , MustVerifyEmail , Can
     public function flightBookings(){
         return $this->hasMany(FlightBooking::class,'user_id');
     }
+    public function hotelBookings(){
+        return $this->hasMany(HotelBooking::class , 'user_id');
+    }
     // الحجوزات الحالية
     public function upcommingFlightBookings(){
         return $this->flightBookings()->whereIn('status',['pending','confirmed'])->whereHas('flightCabin.flight',function($query){

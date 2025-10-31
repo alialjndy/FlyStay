@@ -9,14 +9,8 @@ use Tests\TestCase;
 
 class ProfileUserApiTest extends TestCase
 {
-    private function getUser(){
-        $user = User::factory()->create();
-        $user->assignRole('admin');
-
-        return $user ;
-    }
     public function test_get_profile_info(){
-        $user = $this->getUser();
+        $user = $this->getUser('admin');
 
         $response = $this->actingAs($user)->getJson("api/me");
         $response->assertStatus(200);

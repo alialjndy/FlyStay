@@ -13,10 +13,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class ManageRoleApiTest extends TestCase
 {
     private function getToken(){
-        $user = User::factory()->create();
-        $user->assignRole('admin');
-
-        $this->actingAs($user);
+        $user = $this->getUser('admin');
         $token = JWTAuth::fromUser($user);
         return $token ;
     }
@@ -27,11 +24,13 @@ class ManageRoleApiTest extends TestCase
     public function test_assign_role_to_user(){
         $token = $this->getToken();
 
-        // Select a random user
-        $user = User::doesntHave('roles')->inRandomOrder()->first();
-
-        // Select a random role.
         $role = Role::inRandomOrder()->first();
+
+        // User not have the role.
+        $user = User::whereDoesntHave('roles' , function($query) use ($role){
+            $query->where('name' , '=' , $role->name);
+        })->first();
+
         $payload = [
             'user_id' =>$user->id ,
             'name' => $role->name
@@ -46,7 +45,7 @@ class ManageRoleApiTest extends TestCase
         $token = $this->getToken();
 
         // Select a random user that have a roles.
-        $user = User::whereHas('roles')->inRandomOrder()->first();
+        $user = $this->getUser('finance_officer');
 
         // Select a role that the user already has
         $role = $user->roles()->inRandomOrder()->first();

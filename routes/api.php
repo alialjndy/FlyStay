@@ -34,7 +34,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 Route::middleware(['throttle:api'])->group(function () {
 
     Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->middleware('guest');
     Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->middleware('guest');
 });
@@ -76,7 +76,7 @@ Route::middleware(['auth:api','verified'])->group(function () {
     Route::get('show-country/{country}', [CountryController::class, 'show']);
 
     Route::get('get-all-airports', [AirportController::class, 'index']);
-    Route::get('show-airport/{airport}', [AirportController::class, 'show']);
+    Route::get('show-airport/{airport}', action: [AirportController::class, 'show']);
 
     Route::put('hotels/{hotel}/update-with-photo', [HotelController::class, 'update']);
     Route::resource('hotel', HotelController::class);
@@ -89,7 +89,7 @@ Route::middleware(['auth:api','verified'])->group(function () {
 
     Route::resource('flight-cabin', FlightCabinController::class);
 
-    Route::resource('flight-bookings', FlightBookingController::class);
+    Route::resource('flight-bookings', FlightBookingController::class); // #TODO
     Route::post('flight-bookings/{flightBooking}/cancel', [FlightBookingController::class, 'cancelBooking']);
 
     Route::resource('hotel-bookings', HotelBookingController::class);

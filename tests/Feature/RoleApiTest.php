@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -12,10 +13,7 @@ class RoleApiTest extends TestCase
 {
     use WithFaker ;
     private function getToken(){
-        $user = User::factory()->create();
-        $user->assignRole('admin');
-
-        $this->actingAs($user);
+        $user = $this->getUser('admin');
         $token = JWTAuth::fromUser($user);
         return $token ;
     }
@@ -31,7 +29,7 @@ class RoleApiTest extends TestCase
 
     public function test_create_roles(){
         $token = $this->getToken();
-        $payload = ['name' => $this->faker->name];
+        $payload = ['name' => fake()->name()];
 
         $response = $this->withHeaders(['Authorization' => "Bearer $token"])->postJson('/api/role' , $payload);
         $response->assertStatus(201);
@@ -45,15 +43,28 @@ class RoleApiTest extends TestCase
     }
     public function test_update_role(){
         $token = $this->getToken();
-        $payload = ['name' => 'Update Name'];
+        $payload = ['name' => $this->faker->name];
 
-        $resposne = $this->withHeaders(['Authorization' => "Bearer $token"])->putJson("/api/role/6" ,$payload);
+        $role = Role::whereNotIn('name', ['admin' , 'customer' , 'flight_agent' , 'hotel_agent' , 'finance_officer'])->first();
+
+        $resposne = $this->withHeaders(['Authorization' => "Bearer $token"])->putJson("/api/role/$role->id" ,$payload);
         $resposne->assertStatus(200)->assertJsonStructure(['data' => [['id', 'name','guard_name']]]);
     }
 
     public function test_delete_role(){
         $token = $this->getToken();
-        $resposne = $this->withHeaders(['Authorization' => "Bearer $token"])->deleteJson("/api/role/6");
+
+        // we will delete role not used in authentication
+        $role = Role::whereNotIn('name', ['admin' , 'customer' , 'flight_agent' , 'hotel_agent' , 'finance_officer'])->first();
+
+        $resposne = $this->withHeaders(['Authorization' => "Bearer $token"])->deleteJson("/api/role/$role->id");
         $resposne->assertStatus(200);
+    }
+    public function test_failed_validation_create_role(){
+        $token = $this->getToken();
+
+        $response = $this->withHeaders(['Authorization' => "Bearer $token"])->postJson('/api/role' , []);
+        $response->assertUnprocessable();
+
     }
 }

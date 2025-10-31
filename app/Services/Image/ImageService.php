@@ -3,6 +3,7 @@ namespace App\Services\Image;
 
 use App\Models\Image;
 use Exception;
+use Http\Client\Exception\HttpException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
@@ -89,6 +90,7 @@ class ImageService{
         }
 
         if (str_contains($name, '..') || str_contains($name, '/') || str_contains($name, '\\')) {
+            // abort(403 , 'general.pathTraversalDetected');
             throw new Exception(trans('general.pathTraversalDetected'), 403);
         }
     }

@@ -7,33 +7,28 @@ use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class PermissionApiTest extends TestCase
 {
     use WithFaker ;
-    private function getUser(){
-        $user = User::factory()->create();
-        $user->assignRole('admin');
-
-        $this->actingAs($user);
-        $token = JWTAuth::fromUser($user);
-        return $token ;
-    }
     /**
      * A basic feature test example.
      */
     public function test_get_all_permissions(){
-        $token = $this->getUser();
-
+        $user = $this->getUser('admin');
+        $token = JWTAuth::fromUser($user);
 
         $resposne = $this->withHeaders(['Authorization' => "Bearer $token"])->getJson('/api/permission');
         $resposne->assertStatus(200);
     }
 
     public function test_create_permissions(){
-        $token = $this->getUser();
+        $user = $this->getUser('admin');
+        $token = JWTAuth::fromUser($user);
+
         $payload = ['name' => $this->faker->name];
 
         $response = $this->withHeaders(['Authorization' => "Bearer $token"])->postJson('/api/permission' , $payload);
@@ -41,23 +36,32 @@ class PermissionApiTest extends TestCase
     }
 
     public function test_show_one_permission(){
-        $token = $this->getUser();
+        $user = $this->getUser('admin');
+        $token = JWTAuth::fromUser($user);
+
         $resposne = $this->withHeaders(['Authorization' => "Bearer $token"])->getJson("/api/permission/1");
 
         $resposne->assertStatus(200)->assertJsonStructure(['data' => [['id', 'name','guard_name']]]);
     }
 
     public function test_update_permission(){
-        $token = $this->getUser();
-        $payload = ['name' => 'udpate Name'];
+        $user = $this->getUser('admin');
+        $token = JWTAuth::fromUser($user);
+
+        $payload = ['name' => $this->faker->name];
 
         $resposne = $this->withHeaders(['Authorization' => "Bearer $token"])->putJson("/api/permission/1" ,$payload);
         $resposne->assertStatus(200)->assertJsonStructure(['data' => [['id', 'name','guard_name']]]);
     }
 
     public function test_delete_permission(){
-        $token = $this->getUser();
-        $resposne = $this->withHeaders(['Authorization' => "Bearer $token"])->deleteJson("/api/permission/1");
+        $user = $this->getUser('admin');
+
+        $permission = Permission::inRandomOrder()->first();
+
+        $token = JWTAuth::fromUser($user);
+
+        $resposne = $this->withHeaders(['Authorization' => "Bearer $token"])->deleteJson("/api/permission/$permission->id");
         $resposne->assertStatus(200);
     }
 }

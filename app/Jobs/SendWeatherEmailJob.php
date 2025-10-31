@@ -9,7 +9,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class SendWeatherEmailJob implements ShouldQueue
 {
@@ -35,9 +37,13 @@ class SendWeatherEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $user = User::findOrFail($this->userId);
-        Mail::to($user->email)->send(
-            new WeatherEmail($this->city , $this->targetDate)
-        );
+        try{
+            $user = User::findOrFail($this->userId);
+            Mail::to($user->email)->send(
+                new WeatherEmail($this->city , $this->targetDate)
+            );
+        }catch(Throwable $e){
+            Log::info('حدث خطأ أثناء جلب بيانات الطقس في التنفيذ عن طريق الجوب');
+        }
     }
 }

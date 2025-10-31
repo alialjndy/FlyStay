@@ -8,9 +8,14 @@ use Tests\TestCase;
 
 class LoginApiTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     */
+    // use RefreshDatabase ;
+    // protected function setUp(): void{
+    //     parent::setUp();
+
+    //     $this->artisan('db:seed', ['--class' => 'CountrySeeder']);
+    //     $this->artisan('app:import-airports');
+    //     $this->artisan('db:seed');
+    // }
     public function test_login_succesffully(){
         $payload = [
             'email'=>'alialjndy2@gmail.com' ,

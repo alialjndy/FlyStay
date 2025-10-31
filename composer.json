@@ -11,6 +11,7 @@
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.20",
+        "laravel/telescope": "^5.14",
         "laravel/tinker": "^2.10.1",
         "mailgun/mailgun-php": "^4.3",
         "predis/predis": "^3.2",
@@ -67,7 +68,8 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+            ]
         }
     },
     "config": {

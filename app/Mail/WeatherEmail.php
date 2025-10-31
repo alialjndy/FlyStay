@@ -32,7 +32,7 @@ class WeatherEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('no-reply@FlyStay.com','no-reply'),
+            from: new Address('no-reply@FlyStay.com','FlyStay'),
             replyTo: [
                 new Address('support@FlyStay.com','support')
             ],
