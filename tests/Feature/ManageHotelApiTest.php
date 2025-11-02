@@ -31,8 +31,11 @@ class ManageHotelApiTest extends TestCase
      * @return void
      */
     public function test_success_create_hotel_with_upload_photo(){
+
+        // Create a fake storage disk to uploaded file.
         Storage::fake('public');
 
+        // Create fake photos
         $photo_1 = UploadedFile::fake()->image('photo1.jpg' , 600 , 600);
         $photo_2 = UploadedFile::fake()->image('photo2.jpg' , 500 , 500);
 
@@ -49,7 +52,7 @@ class ManageHotelApiTest extends TestCase
         $response->assertCreated();
     }
     /**
-     * Summary of test_success_update_hotel_with_upload_photo_and_delete_photo
+     * test_success_update_hotel_with_upload_photo_and_delete_photo
      * @return void
      */
     public function test_success_update_hotel_with_upload_photo_and_delete_photo(){
@@ -76,9 +79,9 @@ class ManageHotelApiTest extends TestCase
         $response->assertOk();
     }
     /**
-     *
+     * The test is failed because the photo name contain double dot (..)
+     * @return void
      */
-
     public function test_failed_upload_photo(){
         Storage::fake('public');
 

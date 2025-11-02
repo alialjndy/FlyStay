@@ -15,7 +15,7 @@ class HotelBookingApiTest extends TestCase
         $user = $this->getUser('customer');
         $token = JWTAuth::fromUser($user);
 
-
+        // Get random dates
         $checkInDate = Carbon::now()->addDays(rand(1, 30));
         $checkOutDate = (clone $checkInDate)->addDays(rand(1, 14));
 
@@ -59,6 +59,7 @@ class HotelBookingApiTest extends TestCase
         $response = $this->withHeaders(['Authorization' => "Bearer $token"])
             ->deleteJson("/api/hotel-bookings/{$latestBooking->id}");
 
+        // Customer can't delete any booking
         $response->assertForbidden();
     }
 }

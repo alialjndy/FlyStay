@@ -10,14 +10,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class FlightBookingApiTest extends TestCase
 {
-    // use RefreshDatabase ;
-    // protected function setUp(): void{
-    //     parent::setUp();
-
-    //     $this->artisan('db:seed', ['--class' => 'CountrySeeder']);
-    //     $this->artisan('app:import-airports');
-    //     $this->artisan('db:seed');
-    // }
     public function test_create_flight_booking_successfully(){
         $user = $this->getUser('customer');
         $token = JWTAuth::fromUser($user);
@@ -40,6 +32,8 @@ class FlightBookingApiTest extends TestCase
             'flight_cabins_id' => 6
         ];
 
+        // Retrieve the latest flight booking for this user
+        // Only bookings in pending status should be considered (not completed)
         $flightBooking = $user->flightBookings()->latest()->first();
 
         $response = $this->withHeaders(['Authorization' => "Bearer $token"])
@@ -52,8 +46,8 @@ class FlightBookingApiTest extends TestCase
         $user = $this->getUser('customer');
         $token = JWTAuth::fromUser($user);
 
-        // جلب أحدث رحلة للمستخدم
         $flightBooking = $user->flightBookings()->latest()->first();
+
         $response = $this->withHeaders(['Authorization' => "Bearer $token"])
             ->postJson("/api/flight-bookings/{$flightBooking->id}/cancel");
 
@@ -64,7 +58,7 @@ class FlightBookingApiTest extends TestCase
         $user = $this->getUser('customer');
         $token = JWTAuth::fromUser($user);
 
-        // جلب أحدث رحلة للمستخدم
+        //
         $flightBooking = $user->flightBookings()->latest()->first();
         $response = $this->withHeaders(['Authorization' => "Bearer $token"])
             ->deleteJson("/api/flight-bookings/{$flightBooking->id}");
