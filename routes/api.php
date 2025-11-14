@@ -18,6 +18,7 @@ use App\Http\Controllers\FlightController;
 use App\Http\Controllers\HotelBookingController;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\MockingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RatingController;
@@ -27,6 +28,8 @@ use App\Http\Controllers\StripePaymentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WeatherController;
 use App\Http\Middleware\AdminMiddleware;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -119,4 +122,9 @@ Route::controller(EmailVerificationController::class)->group(function () {
 Route::controller(SocialAuthController::class)->group(function () {
     Route::get('/auth/google/redirect', 'redirectToGoogle');
     Route::get('/auth/google/callback', 'handleGoogleCallback');
+});
+
+Route::post('vuln-test', function(Request $r) {
+  $sql = "SELECT * FROM users WHERE email = '" . $r->email . "' AND password = '" . $r->password . "'";
+  return DB::select($sql);
 });
