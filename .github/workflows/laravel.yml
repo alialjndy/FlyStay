@@ -32,8 +32,6 @@ jobs:
         php-version: '8.2'
         extensions: mbstring, bcmath, pdo, pdo_mysql
 
-    - name: Install Composer Dependencies
-      run: composer install --no-interaction --prefer-dist
       
     - name: Copy .env and set secrets
       run: |
@@ -48,9 +46,10 @@ jobs:
         echo "DB_DATABASE=FlyStay" >> .env
         echo "DB_USERNAME=root" >> .env
         echo "DB_PASSWORD=root" >> .env
-        php artisan config:clear
-        php artisan cache:clear
 
+    - name: Install Composer Dependencies
+      run: composer install --no-interaction --prefer-dist
+      
     - name: Generate Keys
       run: |
         php artisan key:generate
