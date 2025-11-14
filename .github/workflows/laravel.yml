@@ -29,16 +29,15 @@ jobs:
         php-version: '8.2'
     - uses: actions/checkout@v4
     - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      run:  |
+        php -r "file_exists('.env') || copy('.env.example', '.env');"
+        echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET }}" >> .env
+        echo "STRIPE_PUBLIC_KEY=${{ secrets.STRIPE_KEY }}" >> .env
+        php artisan key:generate
+        php artisan jwt:secret --force
       
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      
-    - name: Generate key
-      run: php artisan key:generate
-      
-    - name: Generate JWT Secret key
-      run: php artisan jwt:secret --force
       
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
