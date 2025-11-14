@@ -17,28 +17,28 @@ class FlightBookingSeeder extends Seeder
     public function run(): void
     {
         FlightBooking::create([
-            'user_id'=> User::inRandomOrder()->first()->id,
+            'user_id'=> User::where('id' , '!=' , 2)->inRandomOrder()->first()->id,
             'flight_cabins_id'=> FlightCabin::inRandomOrder()->first()->id,
             'booking_date'=>Carbon::now(),
             'seat_number'=>1,
             'status'=>'pending',
         ]);
         FlightBooking::create([
-            'user_id'=> User::inRandomOrder()->first()->id,
+            'user_id'=> User::where('id' , '!=' , 2)->inRandomOrder()->first()->id,
             'flight_cabins_id'=> FlightCabin::inRandomOrder()->first()->id,
             'booking_date'=>Carbon::now(),
             'seat_number'=>2,
             'status'=>'pending',
         ]);
         FlightBooking::create([
-            'user_id'=> User::inRandomOrder()->first()->id,
+            'user_id'=> User::where('id' , '!=' , 2)->inRandomOrder()->first()->id,
             'flight_cabins_id'=> FlightCabin::inRandomOrder()->first()->id,
             'booking_date'=>Carbon::now(),
             'seat_number'=>3,
             'status'=>'pending',
         ]);
         FlightBooking::create([
-            'user_id'=> User::inRandomOrder()->first()->id,
+            'user_id'=> User::where('id' , '!=' , 2)->inRandomOrder()->first()->id,
             'flight_cabins_id'=> FlightCabin::inRandomOrder()->first()->id,
             'booking_date'=>Carbon::now(),
             'seat_number'=>4,
