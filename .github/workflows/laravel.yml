@@ -35,8 +35,8 @@ jobs:
     - name: Copy .env and set secrets
       run: |
         cp .env.example .env
-        echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET }}" >> .env
-        echo "STRIPE_PUBLIC_KEY=${{ secrets.STRIPE_KEY }}" >> .env
+        echo "STRIPE_SECRET=${{ secrets.STRIPE_SECRET }}" >> .env
+        echo "STRIPE_KEY=${{ secrets.STRIPE_KEY }}" >> .env
         echo "DB_CONNECTION=mysql" >> .env
         echo "DB_HOST=127.0.0.1" >> .env
         echo "DB_PORT=3306" >> .env
