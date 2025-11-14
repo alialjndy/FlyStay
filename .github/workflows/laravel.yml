@@ -37,12 +37,16 @@ jobs:
         cp .env.example .env
         echo "STRIPE_SECRET=${{ secrets.STRIPE_SECRET }}" >> .env
         echo "STRIPE_KEY=${{ secrets.STRIPE_KEY }}" >> .env
+        echo "VIRUSTOTAL_API_KEY=${{ secrets.VIRUSTOTAL_API_KEY }}" >> .env
+        echo "WEATHER_APP_KEY=${{ secrets.WEATHER_APP_KEY }}" >> .env
         echo "DB_CONNECTION=mysql" >> .env
         echo "DB_HOST=127.0.0.1" >> .env
         echo "DB_PORT=3306" >> .env
         echo "DB_DATABASE=FlyStay" >> .env
         echo "DB_USERNAME=root" >> .env
         echo "DB_PASSWORD=root" >> .env
+        php artisan config:clear
+        php artisan cache:clear
 
     - name: Install Composer Dependencies
       run: composer install --no-interaction --prefer-dist
