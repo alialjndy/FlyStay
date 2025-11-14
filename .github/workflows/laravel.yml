@@ -50,7 +50,7 @@ jobs:
           sleep 3
         done
 
-    - name: Run Migrations
+    - name: Run Migrations refresh
       env:
         DB_CONNECTION: mysql
         DB_HOST: 127.0.0.1
@@ -58,7 +58,17 @@ jobs:
         DB_DATABASE: FlyStay
         DB_USERNAME: root
         DB_PASSWORD: root
-      run: php artisan migrate --seed
+      run: php artisan migrate:refresh
+
+    - name: Run Country Seeder
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: FlyStay
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan db:seed --class=CountrySeeder
 
     - name: Import Airports
       env:
@@ -69,6 +79,16 @@ jobs:
         DB_USERNAME: root
         DB_PASSWORD: root
       run: php artisan app:import-airports
+
+    - name: Run Seeders
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: FlyStay
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan db:seed
 
     - name: Execute Tests
       env:
