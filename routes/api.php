@@ -125,5 +125,6 @@ Route::controller(SocialAuthController::class)->group(function () {
 });
 
 Route::get('test_port' , function(){
-    return response()->json(['message' => 'port run succesffully']);
+    // return response()->json(['message' => 'port run succesffully']);
+    return "Port is running successfully";
 });
