@@ -124,7 +124,6 @@ Route::controller(SocialAuthController::class)->group(function () {
     Route::get('/auth/google/callback', 'handleGoogleCallback');
 });
 
-Route::post('vuln-test', function(Request $r) {
-  $sql = "SELECT * FROM users WHERE email = '" . $r->email . "' AND password = '" . $r->password . "'";
-  return DB::select($sql);
+Route::get('test_port' , function(){
+    return response()->json(['message' => 'port run succesffully']);
 });
